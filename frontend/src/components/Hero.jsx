@@ -1,7 +1,57 @@
-// Purpose: Hero Section with Changing Text Animation
-import React from "react";
+
+// Purpose: Dynamic Hero with Synchronized Text & Cake Image Transitions
+
+import React, { useState, useEffect } from "react";
+
+const cakeCategories = [
+  {
+    title: "Birthday cake",
+    image: "/image/c9.png",
+    desc: "Celebrate unforgettable moments with our signature handcrafted birthday cakes, frosted with velvety cream.",
+  },
+  {
+    title: "Chocolate cake",
+    image: "/image/background.png",
+    desc: "Gently place the parchment on your cake. Using a toothpick, prick the message onto the rich chocolate frosting.",
+  },
+  {
+    title: "Party cake",
+    image: "/image/c1.png",
+    desc: "Make every celebration grand with our soft-layered cream cakes designed to be the life of the party.",
+  },
+  {
+    title: "Slice cake",
+    image: "/image/c3.png",
+    desc: "Indulge in perfectly sliced portions of moist sponge cake paired with delectable creamy layers.",
+  },
+  {
+    title: "Cup cake",
+    image: "/image/c10.png",
+    desc: "Delight in artisan cupcakes topped with swirls of delicious frosting and festive handcrafted sprinkles.",
+  },
+];
 
 const Hero = () => {
+  const [currentIndex, setCurrentIndex] = useState(0);
+  const [fade, setFade] = useState(false);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      // 1. Start fade out animation
+      setFade(true);
+
+      // 2. Switch text and image synchronously
+      setTimeout(() => {
+        setCurrentIndex((prev) => (prev + 1) % cakeCategories.length);
+        setFade(false); // 3. Fade in new cake & text
+      }, 350);
+    }, 3200);
+
+    return () => clearInterval(timer);
+  }, []);
+
+  const currentCake = cakeCategories[currentIndex];
+
   return (
     <section
       id="home"
@@ -16,13 +66,28 @@ const Hero = () => {
           <h1 className="text-4xl md:text-6xl font-bold leading-tight drop-shadow-md">
             Delicious <br /> Cakes Bakery
           </h1>
-          <h2 className="text-3xl md:text-5xl font-bold text-white drop-shadow-md">
-            Category <span className="changecontent"></span>
+
+          {/* Synchronized Category Title */}
+          <h2 className="text-3xl md:text-5xl font-bold text-white drop-shadow-md flex items-center flex-wrap gap-2">
+            <span>Category</span>
+            <span
+              className={`text-[#a16d0e] transition-all duration-300 transform inline-block ${
+                fade ? "opacity-0 -translate-y-2" : "opacity-100 translate-y-0"
+              }`}
+            >
+              {currentCake.title}
+            </span>
           </h2>
-          <p className="text-gray-200 font-semibold text-sm md:text-base max-w-lg drop-shadow">
-            Gently place the parchment on your cake. Using a toothpick, prick the message onto the
-            frosting. Once you remove the parchment, you can connect the dots with your toothpick.
+
+          {/* Synchronized Description */}
+          <p
+            className={`text-gray-200 font-semibold text-sm md:text-base max-w-lg drop-shadow min-h-[48px] transition-opacity duration-300 ${
+              fade ? "opacity-0" : "opacity-100"
+            }`}
+          >
+            {currentCake.desc}
           </p>
+
           <a
             href="#product-cards"
             className="inline-block bg-[#573818] hover:bg-[#a16d0e] text-white font-bold px-6 py-2.5 rounded shadow-lg transition duration-300 transform hover:-translate-y-0.5"
@@ -31,12 +96,15 @@ const Hero = () => {
           </a>
         </div>
 
-        {/* Right Cake Image */}
-        <div data-aos="zoom-out-left" className="flex justify-center">
+        {/* Right Cake Image - Changes synchronously with text */}
+        <div data-aos="zoom-out-left" className="flex justify-center items-center min-h-[380px]">
           <img
-            src="/image/background.png"
-            alt="Artisanal Bakery Cake"
-            className="w-full max-w-md md:max-w-lg object-contain drop-shadow-2xl"
+            key={currentCake.title}
+            src={currentCake.image}
+            alt={currentCake.title}
+            className={`w-full max-w-md md:max-w-lg object-contain drop-shadow-2xl transition-all duration-500 ease-in-out transform ${
+              fade ? "opacity-0 scale-90 translate-y-3" : "opacity-100 scale-100 translate-y-0"
+            }`}
           />
         </div>
       </div>
