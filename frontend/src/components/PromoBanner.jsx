@@ -24,7 +24,7 @@ const PromoBanner = () => {
           </p>
           <div className="pt-2">
             <a
-              href="#product-cards"
+              href="/#product-cards"
               className="inline-block bg-[#a16d0e] hover:bg-[#573818] text-white tracking-widest font-bold px-7 py-2 rounded shadow transition duration-300"
             >
               Order Now

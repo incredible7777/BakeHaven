@@ -1,4 +1,7 @@
-// Purpose: Orders Page (Matching orders.html 1:1)
+// ========================================================
+// File: frontend/src/pages/Orders.jsx
+// Purpose: Orders Page with Reactive Preview Card (Matching orders.html 1:1)
+// ========================================================
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,7 +14,7 @@ const Orders = ({ onOpenAuth }) => {
   const { user } = useSelector((state) => state.auth);
   const { items: orders, loading } = useSelector((state) => state.orders);
 
-  const [selectedOrder, setSelectedOrder] = useState(null);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
   const [suggestionQuantities, setSuggestionQuantities] = useState([1, 1, 1, 1]);
 
   const suggestions = [
@@ -28,13 +31,10 @@ const Orders = ({ onOpenAuth }) => {
     } else {
       dispatch(fetchOrders());
     }
-  }, [user, dispatch, navigate]);
+  }, [user, dispatch, navigate, onOpenAuth]);
 
-  useEffect(() => {
-    if (orders && orders.length > 0 && !selectedOrder) {
-      setSelectedOrder(orders[0]);
-    }
-  }, [orders, selectedOrder]);
+  // Always derive active order from fresh Redux state
+  const activeOrder = orders.find((o) => o._id === selectedOrderId) || orders[0] || null;
 
   const handleQtyChange = (orderId, itemName, currentQty, delta) => {
     const newQty = currentQty + delta;
@@ -45,8 +45,8 @@ const Orders = ({ onOpenAuth }) => {
   const handleRemove = (orderId) => {
     if (window.confirm("Are you sure you want to remove this order?")) {
       dispatch(removeOrder(orderId));
-      if (selectedOrder?._id === orderId) {
-        setSelectedOrder(null);
+      if (selectedOrderId === orderId) {
+        setSelectedOrderId(null);
       }
     }
   };
@@ -95,12 +95,12 @@ const Orders = ({ onOpenAuth }) => {
               ) : (
                 orders.map((order) => {
                   const firstItem = order.items[0] || {};
-                  const isSelected = selectedOrder?._id === order._id;
+                  const isSelected = activeOrder?._id === order._id;
 
                   return (
                     <div
                       key={order._id}
-                      onClick={() => setSelectedOrder(order)}
+                      onClick={() => setSelectedOrderId(order._id)}
                       className={`bg-white rounded-xl shadow-md overflow-hidden cursor-pointer transition duration-300 border-2 ${
                         isSelected ? "border-[#573818] shadow-xl" : "border-transparent hover:border-[#573818]"
                       }`}
@@ -175,28 +175,31 @@ const Orders = ({ onOpenAuth }) => {
               )}
             </div>
 
-            {/* Right: Selected Cake Preview Detail Card */}
-            {selectedOrder && selectedOrder.items.length > 0 && (
+            {/* Right: Selected Cake Preview Detail Card (Reactive) */}
+            {activeOrder && activeOrder.items.length > 0 && (
               <div className="bg-white rounded-xl shadow-lg p-6 border border-[#573818]/20 sticky top-24">
                 <div className="flex flex-col sm:flex-row items-center gap-6">
                   <img
-                    src={selectedOrder.items[0].image || "/image/c1.png"}
-                    alt={selectedOrder.items[0].name}
+                    src={activeOrder.items[0].image || "/image/c1.png"}
+                    alt={activeOrder.items[0].name}
                     className="w-48 h-48 object-contain rounded-xl drop-shadow"
                   />
                   <div className="space-y-3">
-                    <h3 className="text-3xl font-bold text-[#573818]">{selectedOrder.items[0].name}</h3>
-                    <p className="text-xl font-bold text-[#a16d0e]">RS: {selectedOrder.items[0].price || 1200}</p>
+                    <h3 className="text-3xl font-bold text-[#573818]">{activeOrder.items[0].name}</h3>
+                    <p className="text-xl font-bold text-[#a16d0e]">RS: {activeOrder.items[0].price || 1200}</p>
                     <p className="text-sm text-gray-700">A delicious artisanal cake with soft sponge and rich cream.</p>
+                    <p className="text-base font-bold text-[#573818]">
+                      Total Order Amount: RS: {activeOrder.totalAmount || activeOrder.items[0].price}
+                    </p>
                     <div className="flex space-x-3 pt-2">
                       <button
-                        onClick={() => handleBuyNow(selectedOrder._id)}
+                        onClick={() => handleBuyNow(activeOrder._id)}
                         className="bg-[#573818] hover:bg-[#8d5524] text-white font-bold px-5 py-2 rounded text-sm transition shadow"
                       >
                         Buy Now
                       </button>
                       <button
-                        onClick={() => handleRemove(selectedOrder._id)}
+                        onClick={() => handleRemove(activeOrder._id)}
                         className="bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-2 rounded text-sm transition shadow"
                       >
                         Remove

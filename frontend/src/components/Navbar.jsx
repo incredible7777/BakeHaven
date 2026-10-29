@@ -1,6 +1,10 @@
-// Purpose: Main Responsive Navigation Bar with Badges & Avatar
-import React, { useState, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+// ========================================================
+// File: frontend/src/components/Navbar.jsx
+// Purpose: Responsive Navigation Bar with Click-Outside Dropdown Auto-Close,
+//          Route Change Auto-Close, and Mobile Responsive Menu
+// ========================================================
+import React, { useState, useEffect, useRef } from "react";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
 import { logout } from "../redux/slices/authSlice";
 
@@ -8,21 +12,70 @@ const Navbar = ({ onOpenAuth, onSelectCategory }) => {
   const [dropdownOpen, setDropdownOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [mobileCategoryOpen, setMobileCategoryOpen] = useState(false);
+
+  // Refs to detect clicks outside menus
+  const categoryRef = useRef(null);
+  const userMenuRef = useRef(null);
+  const mobileMenuRef = useRef(null);
+  const mobileBtnRef = useRef(null);
 
   const dispatch = useDispatch();
   const navigate = useNavigate();
+  const location = useLocation();
 
   const { user } = useSelector((state) => state.auth);
   const { items: wishlistItems } = useSelector((state) => state.wishlist);
   const { items: orderItems } = useSelector((state) => state.orders);
 
-  // Close menus on outside click
+  // Automatically close all open dropdowns whenever the user navigates / changes route
   useEffect(() => {
-    const handleOutsideClick = () => {
-      setUserMenuOpen(false);
+    setDropdownOpen(false);
+    setUserMenuOpen(false);
+    setMobileMenuOpen(false);
+    setMobileCategoryOpen(false);
+  }, [location.pathname]);
+
+  // Close menus when clicking outside, tapping outside, or pressing Escape
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      // If click was outside desktop category dropdown, close it
+      if (categoryRef.current && !categoryRef.current.contains(e.target)) {
+        setDropdownOpen(false);
+      }
+      // If click was outside user dropdown, close it
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target)) {
+        setUserMenuOpen(false);
+      }
+      // If click was outside mobile menu and mobile toggle button, close mobile menu
+      if (
+        mobileMenuRef.current &&
+        !mobileMenuRef.current.contains(e.target) &&
+        mobileBtnRef.current &&
+        !mobileBtnRef.current.contains(e.target)
+      ) {
+        setMobileMenuOpen(false);
+      }
     };
-    window.addEventListener("click", handleOutsideClick);
-    return () => window.removeEventListener("click", handleOutsideClick);
+
+    const handleKeyDown = (e) => {
+      if (e.key === "Escape") {
+        setDropdownOpen(false);
+        setUserMenuOpen(false);
+        setMobileMenuOpen(false);
+        setMobileCategoryOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
   }, []);
 
   const handleUserClick = (e) => {
@@ -31,6 +84,7 @@ const Navbar = ({ onOpenAuth, onSelectCategory }) => {
       onOpenAuth();
     } else {
       setUserMenuOpen((prev) => !prev);
+      setDropdownOpen(false); // Close category if user menu opens
     }
   };
 
@@ -38,6 +92,26 @@ const Navbar = ({ onOpenAuth, onSelectCategory }) => {
     dispatch(logout());
     setUserMenuOpen(false);
     navigate("/");
+  };
+
+  const handleCategoryPick = (cat) => {
+    setDropdownOpen(false);
+    setMobileMenuOpen(false);
+    setMobileCategoryOpen(false);
+    if (onSelectCategory) {
+      onSelectCategory(cat === "All Cakes" ? "" : cat);
+    }
+    // If not already on home page, navigate to home and scroll to cakes
+    if (location.pathname !== "/") {
+      navigate("/");
+      setTimeout(() => {
+        const el = document.getElementById("product-cards");
+        if (el) el.scrollIntoView({ behavior: "smooth" });
+      }, 150);
+    } else {
+      const el = document.getElementById("product-cards");
+      if (el) el.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   return (
@@ -51,8 +125,10 @@ const Navbar = ({ onOpenAuth, onSelectCategory }) => {
 
         {/* Mobile Hamburger Button */}
         <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden text-white focus:outline-none"
+          ref={mobileBtnRef}
+          onClick={() => setMobileMenuOpen((prev) => !prev)}
+          className="md:hidden text-white focus:outline-none p-1 rounded hover:bg-white/10 transition"
+          aria-label="Toggle navigation menu"
         >
           <img src="/image/menu.png" alt="Menu" className="w-7 h-7" />
         </button>
@@ -63,32 +139,39 @@ const Navbar = ({ onOpenAuth, onSelectCategory }) => {
             Home
           </Link>
 
-          {/* Category Dropdown */}
-          <div className="relative">
+          {/* Category Dropdown (with click-outside auto-close ref) */}
+          <div ref={categoryRef} className="relative">
             <button
-              onClick={() => setDropdownOpen(!dropdownOpen)}
+              onClick={() => {
+                setDropdownOpen((prev) => !prev);
+                setUserMenuOpen(false);
+              }}
               className="hover:bg-[#a16d0e] px-3 py-1 rounded transition duration-300 flex items-center space-x-1"
             >
               <span>Category</span>
-              <i className="bx bx-chevron-down"></i>
+              <i className={`bx bx-chevron-${dropdownOpen ? "up" : "down"}`}></i>
             </button>
 
             {dropdownOpen && (
               <div
                 className="absolute left-0 mt-2 w-48 bg-white text-gray-800 rounded shadow-xl py-2 z-50 border border-gray-200"
-                onClick={() => setDropdownOpen(false)}
               >
-                {["All Cakes", "Birthday Cake", "Chocolate Cake", "Party Cake", "Slice Cake", "Cup Cake"].map(
-                  (cat) => (
-                    <button
-                      key={cat}
-                      onClick={() => onSelectCategory && onSelectCategory(cat === "All Cakes" ? "" : cat)}
-                      className="block w-full text-left px-4 py-2 hover:bg-[#fffbe9] hover:text-[#573818] transition font-medium"
-                    >
-                      {cat}
-                    </button>
-                  )
-                )}
+                {[
+                  "All Cakes",
+                  "Birthday Cake",
+                  "Chocolate Cake",
+                  "Party Cake",
+                  "Slice Cake",
+                  "Cup Cake",
+                ].map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => handleCategoryPick(cat)}
+                    className="block w-full text-left px-4 py-2 hover:bg-[#fffbe9] hover:text-[#573818] transition font-medium"
+                  >
+                    {cat}
+                  </button>
+                ))}
               </div>
             )}
           </div>
@@ -106,12 +189,14 @@ const Navbar = ({ onOpenAuth, onSelectCategory }) => {
 
         {/* Right Action Icons (User, Wishlist, Cart) */}
         <div className="flex items-center space-x-5 relative">
-          {/* User Icon / Avatar */}
-          <div className="relative">
+          {/* User Icon / Avatar (with click-outside auto-close ref) */}
+          <div ref={userMenuRef} className="relative">
             <button onClick={handleUserClick} className="focus:outline-none flex items-center">
               {user ? (
                 <img
-                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name)}&background=a16d0e&color=fff`}
+                  src={`https://ui-avatars.com/api/?name=${encodeURIComponent(
+                    user.name
+                  )}&background=a16d0e&color=fff`}
                   alt={user.name}
                   className="w-8 h-8 rounded-full border-2 border-white cursor-pointer hover:-translate-y-1 transition duration-300"
                 />
@@ -128,7 +213,6 @@ const Navbar = ({ onOpenAuth, onSelectCategory }) => {
             {/* User Dropdown Menu */}
             {userMenuOpen && user && (
               <div
-                onClick={(e) => e.stopPropagation()}
                 className="absolute right-0 mt-2 w-44 bg-white text-gray-800 rounded-md shadow-2xl py-2 z-50 border border-gray-200"
               >
                 <div className="px-4 py-2 border-b border-gray-100">
@@ -167,7 +251,11 @@ const Navbar = ({ onOpenAuth, onSelectCategory }) => {
           </div>
 
           {/* Wishlist Heart Icon with Count Badge */}
-          <Link to={user ? "/wishlist" : "#"} onClick={!user ? onOpenAuth : undefined} className="relative">
+          <Link
+            to={user ? "/wishlist" : "#"}
+            onClick={!user ? onOpenAuth : undefined}
+            className="relative"
+          >
             <img
               src="/image/heart.png"
               alt="Wishlist"
@@ -182,7 +270,11 @@ const Navbar = ({ onOpenAuth, onSelectCategory }) => {
           </Link>
 
           {/* Cart / Orders Icon with Count Badge */}
-          <Link to={user ? "/orders" : "#"} onClick={!user ? onOpenAuth : undefined} className="relative">
+          <Link
+            to={user ? "/orders" : "#"}
+            onClick={!user ? onOpenAuth : undefined}
+            className="relative"
+          >
             <img
               src="/image/add.png"
               alt="Cart"
@@ -200,10 +292,45 @@ const Navbar = ({ onOpenAuth, onSelectCategory }) => {
 
       {/* Mobile Menu Dropdown */}
       {mobileMenuOpen && (
-        <div className="md:hidden mt-3 pt-3 border-t border-white/20 flex flex-col space-y-2 text-white font-bold">
+        <div
+          ref={mobileMenuRef}
+          className="md:hidden mt-3 pt-3 border-t border-white/20 flex flex-col space-y-2 text-white font-bold"
+        >
           <Link to="/" onClick={() => setMobileMenuOpen(false)} className="px-2 py-1 hover:bg-[#a16d0e] rounded">
             Home
           </Link>
+
+          {/* Mobile Category Submenu */}
+          <div>
+            <button
+              onClick={() => setMobileCategoryOpen((prev) => !prev)}
+              className="w-full text-left px-2 py-1 hover:bg-[#a16d0e] rounded flex items-center justify-between"
+            >
+              <span>Category</span>
+              <i className={`bx bx-chevron-${mobileCategoryOpen ? "up" : "down"}`}></i>
+            </button>
+            {mobileCategoryOpen && (
+              <div className="pl-4 pt-1 space-y-1 bg-white/10 rounded my-1 py-1">
+                {[
+                  "All Cakes",
+                  "Birthday Cake",
+                  "Chocolate Cake",
+                  "Party Cake",
+                  "Slice Cake",
+                  "Cup Cake",
+                ].map((cat) => (
+                  <button
+                    key={cat}
+                    onClick={() => handleCategoryPick(cat)}
+                    className="block w-full text-left px-2 py-1 text-sm hover:text-[#fffbe9] transition"
+                  >
+                    • {cat}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
           <a href="/#gallary" onClick={() => setMobileMenuOpen(false)} className="px-2 py-1 hover:bg-[#a16d0e] rounded">
             Gallery
           </a>

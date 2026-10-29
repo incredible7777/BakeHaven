@@ -48,8 +48,8 @@ const QuickViewModal = ({ product, onClose, onOpenAuth }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 font-uchen">
-      <div className="relative w-full max-w-2xl bg-gradient-to-br from-[#f8e7d2] to-[#e2b58d] rounded-2xl shadow-2xl p-6 border-none animate-modal">
+    <div onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 font-uchen">
+      <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-2xl bg-gradient-to-br from-[#f8e7d2] to-[#e2b58d] rounded-2xl shadow-2xl p-6 border-none animate-modal">
         <button
           onClick={onClose}
           className="absolute top-4 right-4 text-[#573818] hover:text-black text-2xl font-bold focus:outline-none"

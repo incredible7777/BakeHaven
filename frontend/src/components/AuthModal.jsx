@@ -39,8 +39,8 @@ const AuthModal = ({ isOpen, onClose }) => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 font-uchen">
-      <div className="relative w-full max-w-md bg-gradient-to-br from-[#f8e7d2] to-[#e2b58d] rounded-2xl shadow-2xl p-6 border-none animate-modal">
+    <div onClick={onClose} className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 font-uchen">
+      <div onClick={(e) => e.stopPropagation()} className="relative w-full max-w-md bg-gradient-to-br from-[#f8e7d2] to-[#e2b58d] rounded-2xl shadow-2xl p-6 border-none animate-modal">
         {/* Close Button */}
         <button
           onClick={onClose}

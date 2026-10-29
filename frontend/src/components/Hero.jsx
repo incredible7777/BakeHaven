@@ -89,7 +89,7 @@ const Hero = () => {
           </p>
 
           <a
-            href="#product-cards"
+            href="/#product-cards"
             className="inline-block bg-[#573818] hover:bg-[#a16d0e] text-white font-bold px-6 py-2.5 rounded shadow-lg transition duration-300 transform hover:-translate-y-0.5"
           >
             Order Now

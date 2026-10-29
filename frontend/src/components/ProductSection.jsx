@@ -1,5 +1,7 @@
-// Purpose: Categorized Cake Display Grids
-
+// ========================================================
+// File: frontend/src/components/ProductSection.jsx
+// Purpose: Categorized Cake Display Grids with Smart Search & Filtering
+// ========================================================
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../redux/slices/productSlice";
@@ -21,15 +23,25 @@ const ProductSection = ({ selectedCategory, onQuickView, onOpenAuth }) => {
     );
   }
 
-  // Filter products if a specific category was picked from Navbar
+  // Smart filter: Matches category name or cake title (e.g. "Chocolate", "Slice", "Cup", "Birthday")
   const displayProducts = selectedCategory
-    ? products.filter((p) => p.category.toLowerCase() === selectedCategory.toLowerCase())
+    ? products.filter((p) => {
+        const cat = selectedCategory.toLowerCase();
+        const keyword = cat.replace(" cake", "").trim();
+        return (
+          p.category.toLowerCase() === cat ||
+          p.name.toLowerCase().includes(keyword) ||
+          p.description.toLowerCase().includes(keyword)
+        );
+      })
     : products;
 
   // Split products for the authentic original layout
   const cakes = displayProducts.filter((p) => p.category === "Cakes" || !p.category);
   const birthdayCakes = displayProducts.filter((p) => p.category === "Birthday Cake");
-  const otherCakes = displayProducts.filter((p) => p.category !== "Cakes" && p.category !== "Birthday Cake");
+  const otherCakes = displayProducts.filter(
+    (p) => p.category !== "Cakes" && p.category !== "Birthday Cake"
+  );
 
   return (
     <section id="product-cards" className="max-w-7xl mx-auto px-4 mt-16 font-uchen">

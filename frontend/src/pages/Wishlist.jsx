@@ -1,4 +1,7 @@
-// Purpose: Wishlist Page (Matching wishlist.html 1:1)
+// ========================================================
+// File: frontend/src/pages/Wishlist.jsx
+// Purpose: Wishlist Page with Reactive Preview Card (Matching wishlist.html 1:1)
+// ========================================================
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -11,7 +14,7 @@ const Wishlist = ({ onOpenAuth }) => {
 
   const { user } = useSelector((state) => state.auth);
   const { items: wishlist, loading } = useSelector((state) => state.wishlist);
-  const [selectedItem, setSelectedItem] = useState(null);
+  const [selectedItemName, setSelectedItemName] = useState(null);
 
   useEffect(() => {
     if (!user) {
@@ -20,13 +23,10 @@ const Wishlist = ({ onOpenAuth }) => {
     } else {
       dispatch(fetchWishlist());
     }
-  }, [user, dispatch, navigate]);
+  }, [user, dispatch, navigate, onOpenAuth]);
 
-  useEffect(() => {
-    if (wishlist && wishlist.length > 0 && !selectedItem) {
-      setSelectedItem(wishlist[0]);
-    }
-  }, [wishlist, selectedItem]);
+  // Always derive active item from fresh Redux state
+  const activeItem = wishlist.find((i) => i.name === selectedItemName) || wishlist[0] || null;
 
   const handleQtyChange = (itemName, currentQty, delta) => {
     const newQty = currentQty + delta;
@@ -37,8 +37,8 @@ const Wishlist = ({ onOpenAuth }) => {
   const handleRemove = (itemName) => {
     if (window.confirm("Are you sure you want to remove this item from your wishlist?")) {
       dispatch(removeFromWishlist(itemName));
-      if (selectedItem?.name === itemName) {
-        setSelectedItem(null);
+      if (selectedItemName === itemName) {
+        setSelectedItemName(null);
       }
     }
   };
@@ -74,13 +74,13 @@ const Wishlist = ({ onOpenAuth }) => {
                 </div>
               ) : (
                 wishlist.map((item, idx) => {
-                  const isSelected = selectedItem?.name === item.name;
+                  const isSelected = activeItem?.name === item.name;
                   const total = (item.price || 1000) * (item.quantity || 1);
 
                   return (
                     <div
                       key={idx}
-                      onClick={() => setSelectedItem(item)}
+                      onClick={() => setSelectedItemName(item.name)}
                       className={`bg-white rounded-xl shadow-md overflow-hidden cursor-pointer transition duration-300 border-2 ${
                         isSelected ? "border-[#573818] shadow-xl" : "border-transparent hover:border-[#573818]"
                       }`}
@@ -152,31 +152,31 @@ const Wishlist = ({ onOpenAuth }) => {
               )}
             </div>
 
-            {/* Right: Selected Detail Card */}
-            {selectedItem && (
+            {/* Right: Selected Detail Card (Reactive) */}
+            {activeItem && (
               <div className="bg-white rounded-xl shadow-lg p-6 border border-[#573818]/20 sticky top-24">
                 <div className="flex flex-col sm:flex-row items-center gap-6">
                   <img
-                    src={selectedItem.image || "/image/c1.png"}
-                    alt={selectedItem.name}
+                    src={activeItem.image || "/image/c1.png"}
+                    alt={activeItem.name}
                     className="w-48 h-48 object-contain rounded-xl drop-shadow"
                   />
                   <div className="space-y-3">
-                    <h3 className="text-3xl font-bold text-[#573818]">{selectedItem.name}</h3>
-                    <p className="text-xl font-bold text-[#a16d0e]">RS: {selectedItem.price || 1000}</p>
+                    <h3 className="text-3xl font-bold text-[#573818]">{activeItem.name}</h3>
+                    <p className="text-xl font-bold text-[#a16d0e]">RS: {activeItem.price || 1000}</p>
                     <p className="text-sm text-gray-700">A delicious freshly baked cake crafted with care.</p>
                     <p className="text-lg font-bold text-[#573818]">
-                      Total: RS: {(selectedItem.price || 1000) * (selectedItem.quantity || 1)}
+                      Total: RS: {(activeItem.price || 1000) * (activeItem.quantity || 1)}
                     </p>
                     <div className="flex space-x-3 pt-2">
                       <button
-                        onClick={() => handleAddToCart(selectedItem)}
+                        onClick={() => handleAddToCart(activeItem)}
                         className="bg-[#573818] hover:bg-[#8d5524] text-white font-bold px-5 py-2 rounded text-sm transition shadow"
                       >
                         Add to Cart
                       </button>
                       <button
-                        onClick={() => handleRemove(selectedItem.name)}
+                        onClick={() => handleRemove(activeItem.name)}
                         className="bg-red-600 hover:bg-red-700 text-white font-bold px-5 py-2 rounded text-sm transition shadow"
                       >
                         Remove
