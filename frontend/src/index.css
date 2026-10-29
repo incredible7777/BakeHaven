@@ -1,0 +1,59 @@
+@import "tailwindcss";
+
+/* Tailwind v4 Theme Configuration (Cake Bakery Palette) */
+@theme{
+  --color-cake-dark: #2e1700;        /* Background dark roast */
+  --color-cake-brown: #573818;       /* Primary buttons & navbar */
+  --color-cake-brownHover: #8d5524;  /* Button hover brown */
+  --color-cake-caramel: #a16d0e;     /* Gold / Caramel accent */
+  --color-cake-cream: #fffbe9;       /* Orders & Wishlist light background */
+  --color-cake-tan: #e2b58d;         /* Modal gradient light brown */
+  --color-cake-softCream: #f8e7d2;   /* Modal gradient cream */
+  --font-uchen: 'Uchen', serif;      /* Original bakery typography */
+}
+
+/* Custom Global Styles & Bakery Animations */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Hero Section Changing Text Animation (1:1 Original Effect) */
+.changecontent::after {
+  content: 'Birthday cake';
+  color: #a16d0e;
+  font-weight: bold;
+  animation: changetext 10s infinite linear;
+}
+
+@keyframes changetext {
+  0% { content: "Birthday cake"; }
+  20% { content: "Chocolate cake"; }
+  50% { content: "Party cake"; }
+  60% { content: "Slice cake"; }
+  100% { content: "Cup cake"; }
+}
+
+/* Modal Pop Animation */
+@keyframes modalPop {
+  0% { transform: scale(0.9); opacity: 0; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+.animate-modal {
+  animation: modalPop 0.3s ease-out forwards;
+}
+
+/* Custom Chocolaty Scrollbar */
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #2e1700;
+}
+::-webkit-scrollbar-thumb {
+  background: #573818;
+  border-radius: 5px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #a16d0e;
+}
