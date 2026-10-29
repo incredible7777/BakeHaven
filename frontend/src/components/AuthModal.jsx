@@ -1,7 +1,5 @@
-// ========================================================
-// File: frontend/src/components/AuthModal.jsx
 // Purpose: Chocolaty-Themed Login & Signup Modal
-// ========================================================
+
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { login, register, clearError } from "../redux/slices/authSlice";
@@ -29,7 +27,7 @@ const AuthModal = ({ isOpen, onClose }) => {
     if (error) dispatch(clearError());
   };
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async(e) => {
     e.preventDefault();
     if (activeTab === "login") {
       const res = await dispatch(login({ email: formData.email, password: formData.password }));
