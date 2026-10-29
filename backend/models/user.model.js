@@ -1,6 +1,6 @@
-import mongoose from "mongoose"
-import bcrypt from "bcryptjs"//for password encryption 
-import jwt from "jsonwebtoken"//for json web token means authentication 
+import mongoose from "mongoose";
+import bcrypt from "bcryptjs"; // for password encryption
+import jwt from "jsonwebtoken"; // for json web token authentication
 
 // Wishlist item subdocument
 const wishlistItemSchema = new mongoose.Schema({
@@ -28,46 +28,48 @@ const wishlistItemSchema = new mongoose.Schema({
   },
 });
 
-//main user schema 
-const userSchema=new mongoose.Schema({
-    name:{
-        type:String,
-        required:[true,"Name is required"],
-        trim:true,
+// Main user schema
+const userSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "Name is required"],
+      trim: true,
     },
-    email:{
-        type:String,
-        required:[true,"Email is required"],
-        trim:true,
-        unique:true,
-        lowercase:true,
-        index:true, //database search faster 
+    email: {
+      type: String,
+      required: [true, "Email is required"],
+      trim: true,
+      unique: true,
+      lowercase: true,
+      index: true, // database search faster
     },
-    password:{
-        type:String,
-        required:[true,"Password is required"],
-        minLength:[8,"Password must be at least 8 characters long"],
-        
+    password: {
+      type: String,
+      required: [true, "Password is required"],
+      minLength: [6, "Password must be at least 6 characters long"],
     },
-    wishlist:[wishlistItemSchema],
-    
-    
-
-},{timestamps:true})
+    wishlist: [wishlistItemSchema],
+    refreshToken: {
+      type: String,
+    },
+  },
+  { timestamps: true }
+);
 
 // Pre-save hook: Hash password before saving to MongoDB
 userSchema.pre("save", async function (next) {
   if (!this.isModified("password")) return next();
-  this.password = await bcrypt.hash(this.password, 10);//in detail: it is for generating random salt and then hashing the password using that salt 
+  this.password = await bcrypt.hash(this.password, 10);
   next();
 });
 
-// Instance method(khud se bnaye hue method): verify password
+// Instance method: verify password
 userSchema.methods.isPasswordCorrect = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 
-// Instance method: generate signed JWT
+// Instance method: Generate Short-lived Access Token
 userSchema.methods.generateAccessToken = function () {
   return jwt.sign(
     {
@@ -75,9 +77,9 @@ userSchema.methods.generateAccessToken = function () {
       email: this.email,
       name: this.name,
     },
-    process.env.JWT_SECRET,
+    process.env.ACCESS_TOKEN_SECRET || process.env.JWT_SECRET || "default_cake_access_secret",
     {
-      expiresIn: process.env.JWT_EXPIRE || "30d",
+      expiresIn: process.env.ACCESS_TOKEN_EXPIRY || "1d",
     }
   );
 };
@@ -88,7 +90,7 @@ userSchema.methods.generateRefreshToken = function () {
     {
       _id: this._id,
     },
-    process.env.REFRESH_TOKEN_SECRET,
+    process.env.REFRESH_TOKEN_SECRET || "default_cake_refresh_secret",
     {
       expiresIn: process.env.REFRESH_TOKEN_EXPIRY || "10d",
     }
