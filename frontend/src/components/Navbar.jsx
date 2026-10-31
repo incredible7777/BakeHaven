@@ -118,9 +118,19 @@ const Navbar = ({ onOpenAuth, onSelectCategory }) => {
     <nav className="sticky top-0 z-50 bg-[#573818] px-4 md:px-12 py-3 shadow-lg font-uchen">
       <div className="max-w-7xl mx-auto flex items-center justify-between">
         {/* Brand Logo */}
-        <Link to="/" className="flex items-center space-x-2 text-white text-2xl font-bold">
-          <img src="/image/logo.png" alt="Cake Bakery Logo" className="w-10 h-10 object-contain" />
-          <span>Cake Bakery</span>
+        <Link
+          to="/"
+          className="flex items-center gap-2.5 text-white text-2xl font-bold group select-none"
+        >
+          <img
+            src="/image/logo.png"
+            alt="Cake Bakery Logo"
+            className="w-10 h-10 object-contain transition-transform duration-300 group-hover:scale-105 shrink-0"
+          />
+          <span className="flex items-center gap-1.5 translate-y-[2.5px] leading-none text-white tracking-normal font-bold">
+            <span>Cake</span>
+            <span>Bakery</span>
+          </span>
         </Link>
 
         {/* Mobile Hamburger Button */}

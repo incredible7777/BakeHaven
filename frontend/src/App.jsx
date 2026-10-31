@@ -63,6 +63,7 @@ function App() {
             element={
               <Home
                 selectedCategory={selectedCategory}
+                onSelectCategory={setSelectedCategory}
                 onQuickView={setQuickViewProduct}
                 onOpenAuth={() => setAuthModalOpen(true)}
               />

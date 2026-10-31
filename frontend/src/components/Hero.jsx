@@ -81,7 +81,7 @@ const Hero = () => {
 
           {/* Synchronized Description */}
           <p
-            className={`text-gray-200 font-semibold text-sm md:text-base max-w-lg drop-shadow min-h-[48px] transition-opacity duration-300 ${
+            className={`text-gray-200 font-medium text-sm md:text-base max-w-lg drop-shadow min-h-[56px] leading-relaxed transition-opacity duration-300 ${
               fade ? "opacity-0" : "opacity-100"
             }`}
           >
@@ -90,7 +90,7 @@ const Hero = () => {
 
           <a
             href="/#product-cards"
-            className="inline-block bg-[#573818] hover:bg-[#a16d0e] text-white font-bold px-6 py-2.5 rounded shadow-lg transition duration-300 transform hover:-translate-y-0.5"
+            className="inline-block bg-[#573818] hover:bg-[#a16d0e] text-white font-bold tracking-widest px-8 py-3 rounded-lg shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
           >
             Order Now
           </a>

@@ -1,5 +1,4 @@
-
-// Purpose: Orders & Cart Redux Slice
+// Purpose: Orders & Cart Redux Slice with Item Count Incrementing & Checkout
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../services/api";
@@ -17,7 +16,7 @@ export const fetchOrders = createAsyncThunk(
   }
 );
 
-// Place a new order
+// Place a new order or increment count in existing cart
 export const createOrder = createAsyncThunk(
   "orders/createOrder",
   async (items, { rejectWithValue }) => {
@@ -26,6 +25,19 @@ export const createOrder = createAsyncThunk(
       return res.data.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Failed to place order");
+    }
+  }
+);
+
+// Checkout/Finalize an order
+export const checkoutOrder = createAsyncThunk(
+  "orders/checkoutOrder",
+  async (orderId, { rejectWithValue }) => {
+    try {
+      const res = await api.put(`/orders/${orderId}/checkout`);
+      return res.data.data;
+    } catch (err) {
+      return rejectWithValue(err.response?.data?.message || "Failed to checkout order");
     }
   }
 );
@@ -78,9 +90,21 @@ const orderSlice = createSlice({
         state.loading = false;
         state.error = action.payload;
       })
-      // createOrder
+      // createOrder (merges/updates existing pending order in place or unshifts new)
       .addCase(createOrder.fulfilled, (state, action) => {
-        state.items.unshift(action.payload);
+        const index = state.items.findIndex((o) => o._id === action.payload._id);
+        if (index !== -1) {
+          state.items[index] = action.payload;
+        } else {
+          state.items.unshift(action.payload);
+        }
+      })
+      // checkoutOrder
+      .addCase(checkoutOrder.fulfilled, (state, action) => {
+        const index = state.items.findIndex((o) => o._id === action.payload._id);
+        if (index !== -1) {
+          state.items[index] = action.payload;
+        }
       })
       // updateOrderQty
       .addCase(updateOrderQty.fulfilled, (state, action) => {

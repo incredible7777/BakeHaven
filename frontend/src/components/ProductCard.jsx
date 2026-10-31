@@ -1,4 +1,4 @@
-// Purpose: Individual Cake Card with Hover Action Overlay
+// Purpose: Individual Cake Card with Hover Action Overlay & Uniform Alignment
 import React from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { addToWishlist } from "../redux/slices/wishlistSlice";
@@ -47,16 +47,16 @@ const ProductCard = ({ product, onQuickView, onOpenAuth }) => {
 
   return (
     <div
-      className="group relative bg-[#a16d0e] text-[#2e1700] rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-2xl font-uchen flex flex-col justify-between"
+      className="group relative bg-[#a16d0e] text-[#2e1700] rounded-lg shadow-md overflow-hidden transition-all duration-300 hover:shadow-2xl font-uchen flex flex-col justify-between h-full border border-black/10"
       data-aos="fade-up"
     >
       {/* Top Image & Hover Overlay Container */}
-      <div className="relative overflow-hidden bg-white/10 flex items-center justify-center p-4 min-h-[220px]">
+      <div className="relative overflow-hidden bg-white/10 flex items-center justify-center p-4 h-[220px]">
         {/* Cake Image */}
         <img
           src={product.image}
           alt={product.name}
-          className="max-h-44 object-contain group-hover:scale-105 transition duration-500"
+          className="max-h-44 object-contain group-hover:scale-105 transition-transform duration-500"
         />
 
         {/* Hover Action Overlay Icons */}
@@ -64,21 +64,21 @@ const ProductCard = ({ product, onQuickView, onOpenAuth }) => {
           <button
             onClick={() => onQuickView(product)}
             title="Quick View"
-            className="w-8 h-8 rounded-full bg-[#2e1700] hover:bg-[#573818] p-1.5 flex items-center justify-center shadow-lg transition"
+            className="w-8 h-8 rounded-full bg-[#2e1700] hover:bg-[#573818] p-1.5 flex items-center justify-center shadow-lg transition cursor-pointer"
           >
             <img src="/image/views.png" alt="Quick View" className="w-4 h-4 object-contain" />
           </button>
           <button
             onClick={handleWishlist}
             title="Add to Wishlist"
-            className="w-8 h-8 rounded-full bg-[#2e1700] hover:bg-[#573818] p-1.5 flex items-center justify-center shadow-lg transition"
+            className="w-8 h-8 rounded-full bg-[#2e1700] hover:bg-[#573818] p-1.5 flex items-center justify-center shadow-lg transition cursor-pointer"
           >
             <img src="/image/heart.png" alt="Wishlist" className="w-4 h-4 object-contain" />
           </button>
           <button
             onClick={handleAddToCart}
             title="Add to Cart"
-            className="w-8 h-8 rounded-full bg-[#2e1700] hover:bg-[#573818] p-1.5 flex items-center justify-center shadow-lg transition"
+            className="w-8 h-8 rounded-full bg-[#2e1700] hover:bg-[#573818] p-1.5 flex items-center justify-center shadow-lg transition cursor-pointer"
           >
             <img src="/image/add.png" alt="Add to Cart" className="w-4 h-4 object-contain" />
           </button>
@@ -86,31 +86,34 @@ const ProductCard = ({ product, onQuickView, onOpenAuth }) => {
       </div>
 
       {/* Card Body */}
-      <div className="p-4 flex flex-col flex-grow justify-between">
+      <div className="p-4 flex flex-col flex-grow justify-between space-y-3">
         <div>
-          <h3 className="text-xl font-bold text-white drop-shadow mb-1">{product.name}</h3>
+          <h3 className="text-xl font-bold text-white drop-shadow mb-1 truncate" title={product.name}>
+            {product.name}
+          </h3>
 
           {/* Star Rating */}
-          <div className="flex items-center space-x-0.5 text-yellow-300 text-sm mb-2">
+          <div className="flex items-center space-x-1 text-yellow-300 text-sm mb-2">
             {[...Array(5)].map((_, i) => (
               <i
                 key={i}
-                className={`bx ${i < (product.stars || 4) ? "bxs-star" : "bx-star text-gray-400"}`}
+                className={`bx ${i < (product.stars || 4) ? "bxs-star" : "bx-star text-black/30"}`}
               ></i>
             ))}
           </div>
 
-          <p className="text-xs font-bold text-[#2e1700] line-clamp-2 italic mb-3">
-            "{product.quote || "Cake is an emotion."}"
+          {/* Quote Description */}
+          <p className="text-xs font-bold text-[#2e1700] line-clamp-2 italic min-h-[32px] leading-relaxed">
+            "{product.quote || "Cake is not just a food, it's an emotion."}"
           </p>
         </div>
 
         {/* Price & Add Cart Button */}
-        <div className="flex items-center justify-between pt-2 border-t border-[#2e1700]/20">
+        <div className="flex items-center justify-between pt-3 border-t border-[#2e1700]/20">
           <span className="text-lg font-bold text-[#2e1700]">RS: {product.price}</span>
           <button
             onClick={handleAddToCart}
-            className="text-xs tracking-wider font-bold border-2 border-[#573818] text-[#573818] hover:bg-[#2e1700] hover:text-white px-3 py-1 rounded transition duration-300"
+            className="text-xs tracking-[2px] font-bold border-2 border-[#573818] text-[#573818] hover:bg-[#2e1700] hover:text-white px-3 py-1 rounded transition duration-300 cursor-pointer uppercase"
           >
             Add Cart
           </button>
