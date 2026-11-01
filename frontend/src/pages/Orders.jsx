@@ -94,7 +94,12 @@ const Orders = ({ onOpenAuth }) => {
         {/* Page Header */}
         <div className="border-b border-[#573818]/20 pb-4 mb-8 flex flex-col md:flex-row md:items-end justify-between gap-4">
           <div>
-            <h1 className="text-3xl md:text-4xl font-bold text-[#573818] tracking-wide">My Orders & Cart</h1>
+            <h1 className="text-3xl md:text-4xl font-bold text-[#573818] tracking-wide flex items-center gap-2">
+              <span>My</span>
+              <span>Orders</span>
+              <span>&</span>
+              <span>Cart</span>
+            </h1>
             <p className="text-sm md:text-base text-[#8d5524] mt-1 font-medium">
               Review your current cake orders, update quantities, or proceed to checkout.
             </p>
@@ -112,153 +117,158 @@ const Orders = ({ onOpenAuth }) => {
           <div className="py-20 text-center text-[#a16d0e] font-bold text-lg animate-pulse">
             Loading your fresh orders...
           </div>
+        ) : orders.length === 0 ? (
+          /* Warm Bakery-Themed Empty State - Middle Aligned */
+          <div className="flex flex-col items-center justify-center py-12">
+            <div className="bg-white rounded-3xl p-10 md:p-14 text-center shadow-lg border border-[#a16d0e]/20 max-w-xl w-full mx-auto">
+              <div className="w-20 h-20 bg-[#fffbe9] rounded-full mx-auto flex items-center justify-center mb-5 shadow-inner">
+                <img src="/image/add.png" alt="Empty Cart" className="w-10 h-10 object-contain opacity-70" />
+              </div>
+              <h3 className="text-2xl md:text-3xl font-bold text-[#573818] mb-3 flex items-center justify-center gap-2">
+                <span>Your</span>
+                <span>Bag</span>
+                <span>is</span>
+                <span>Empty</span>
+              </h3>
+              <p className="text-sm md:text-base text-gray-600 mb-6 max-w-md mx-auto leading-relaxed">
+                You haven't placed any cake orders yet. Explore our freshly baked artisan cakes and treat yourself!
+              </p>
+              <Link
+                to="/#product-cards"
+                className="inline-block bg-[#573818] hover:bg-[#a16d0e] text-white font-bold px-8 py-3 rounded-xl shadow-md transition duration-300 transform hover:-translate-y-0.5 cursor-pointer"
+              >
+                Explore Delicious Cakes
+              </Link>
+            </div>
+          </div>
         ) : (
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             {/* Left: Orders List (7 cols) */}
             <div className="lg:col-span-7 space-y-6">
-              {orders.length === 0 ? (
-                /* Warm Bakery-Themed Empty State */
-                <div className="bg-white rounded-2xl p-10 text-center shadow-md border border-[#a16d0e]/20 max-w-lg mx-auto my-8">
-                  <div className="w-20 h-20 bg-[#fffbe9] rounded-full mx-auto flex items-center justify-center mb-4 shadow-inner">
-                    <img src="/image/add.png" alt="Empty Cart" className="w-10 h-10 object-contain opacity-70" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-[#573818] mb-2">Your Bag is Empty</h3>
-                  <p className="text-sm text-gray-600 mb-6 max-w-sm mx-auto leading-relaxed">
-                    You haven't placed any cake orders yet. Explore our freshly baked artisan cakes and treat yourself!
-                  </p>
-                  <Link
-                    to="/#product-cards"
-                    className="inline-block bg-[#573818] hover:bg-[#a16d0e] text-white font-bold px-8 py-2.5 rounded-lg shadow-md transition duration-300"
-                  >
-                    Explore Delicious Cakes
-                  </Link>
-                </div>
-              ) : (
-                orders.map((order) => {
-                  const firstItem = order.items[0] || {};
-                  const isSelected = activeOrder?._id === order._id;
-                  const orderTotal = order.totalAmount || order.items.reduce((sum, it) => sum + (it.price * it.quantity), 0);
-                  const isCompleted = order.status === "Completed";
+              {orders.map((order) => {
+                const firstItem = order.items[0] || {};
+                const isSelected = activeOrder?._id === order._id;
+                const orderTotal = order.totalAmount || order.items.reduce((sum, it) => sum + (it.price * it.quantity), 0);
+                const isCompleted = order.status === "Completed";
 
-                  return (
-                    <div
-                      key={order._id}
-                      onClick={() => setSelectedOrderId(order._id)}
-                      className={`bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border-2 overflow-hidden cursor-pointer ${
-                        isSelected ? "border-[#573818] ring-2 ring-[#573818]/15" : "border-gray-200 hover:border-[#a16d0e]/60"
-                      }`}
-                    >
-                      {/* Order Card Header */}
-                      <div className="bg-[#fffbe9] px-5 py-3 border-b border-[#573818]/10 flex flex-wrap items-center justify-between gap-2 text-xs md:text-sm">
-                        <div className="flex items-center space-x-2">
-                          <span className="font-bold text-[#573818]">Order #{order._id.slice(-6).toUpperCase()}</span>
-                          <span className="text-gray-400">•</span>
-                          <span className="text-gray-500 font-medium">{order.items.length} item{order.items.length > 1 ? "s" : ""}</span>
-                        </div>
-                        <div className="flex items-center space-x-3">
-                          <span
-                            className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
-                              isCompleted
-                                ? "bg-green-100 text-green-700 border border-green-200"
-                                : "bg-amber-100 text-[#8d5524] border border-amber-200"
-                            }`}
-                          >
-                            {order.status || "Pending"}
-                          </span>
-                          <span className="font-bold text-[#573818] text-sm">
-                            Total: RS {orderTotal}
-                          </span>
-                        </div>
+                return (
+                  <div
+                    key={order._id}
+                    onClick={() => setSelectedOrderId(order._id)}
+                    className={`bg-white rounded-2xl shadow-sm hover:shadow-md transition-all duration-300 border-2 overflow-hidden cursor-pointer ${
+                      isSelected ? "border-[#573818] ring-2 ring-[#573818]/15" : "border-gray-200 hover:border-[#a16d0e]/60"
+                    }`}
+                  >
+                    {/* Order Card Header */}
+                    <div className="bg-[#fffbe9] px-5 py-3 border-b border-[#573818]/10 flex flex-wrap items-center justify-between gap-2 text-xs md:text-sm">
+                      <div className="flex items-center space-x-2">
+                        <span className="font-bold text-[#573818]">Order #{order._id.slice(-6).toUpperCase()}</span>
+                        <span className="text-gray-400">•</span>
+                        <span className="text-gray-500 font-medium">{order.items.length} item{order.items.length > 1 ? "s" : ""}</span>
+                      </div>
+                      <div className="flex items-center space-x-3">
+                        <span
+                          className={`px-2.5 py-0.5 rounded-full text-xs font-bold uppercase tracking-wider ${
+                            isCompleted
+                              ? "bg-green-100 text-green-700 border border-green-200"
+                              : "bg-amber-100 text-[#8d5524] border border-amber-200"
+                          }`}
+                        >
+                          {order.status || "Pending"}
+                        </span>
+                        <span className="font-bold text-[#573818] text-sm">
+                          Total: RS {orderTotal}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Order Card Body */}
+                    <div className="p-5 flex flex-col sm:flex-row items-start sm:items-center gap-5">
+                      <div className="w-24 h-24 bg-[#fffbe9]/60 rounded-xl p-2 flex items-center justify-center shrink-0 border border-gray-100">
+                        <img
+                          src={firstItem.image || "/image/c1.png"}
+                          alt={firstItem.name}
+                          className="max-w-full max-h-full object-contain"
+                        />
                       </div>
 
-                      {/* Order Card Body */}
-                      <div className="p-5 flex flex-col sm:flex-row items-start sm:items-center gap-5">
-                        <div className="w-24 h-24 bg-[#fffbe9]/60 rounded-xl p-2 flex items-center justify-center shrink-0 border border-gray-100">
-                          <img
-                            src={firstItem.image || "/image/c1.png"}
-                            alt={firstItem.name}
-                            className="max-w-full max-h-full object-contain"
-                          />
+                      <div className="flex-1 w-full space-y-3">
+                        <div className="space-y-1">
+                          {order.items.map((item, i) => (
+                            <div key={i} className="flex items-center justify-between text-sm py-1 border-b border-gray-50 last:border-none">
+                              <div className="flex items-center space-x-2">
+                                <span className="font-bold text-[#573818]">{item.name}</span>
+                                <span className="text-xs text-gray-500 font-medium">@ RS {item.price}</span>
+                              </div>
+                              <div className="flex items-center space-x-2">
+                                {!isCompleted && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleQtyChange(order._id, item.name, item.quantity, -1);
+                                    }}
+                                    className="w-6 h-6 rounded-full bg-gray-100 hover:bg-[#573818] hover:text-white font-bold flex items-center justify-center text-xs transition"
+                                    title="Decrease quantity"
+                                  >
+                                    -
+                                  </button>
+                                )}
+                                <span className="font-bold text-xs text-[#2e1700] w-6 text-center">x{item.quantity}</span>
+                                {!isCompleted && (
+                                  <button
+                                    onClick={(e) => {
+                                      e.stopPropagation();
+                                      handleQtyChange(order._id, item.name, item.quantity, 1);
+                                    }}
+                                    className="w-6 h-6 rounded-full bg-gray-100 hover:bg-[#573818] hover:text-white font-bold flex items-center justify-center text-xs transition"
+                                    title="Increase quantity"
+                                  >
+                                    +
+                                  </button>
+                                )}
+                              </div>
+                            </div>
+                          ))}
                         </div>
 
-                        <div className="flex-1 w-full space-y-3">
-                          <div className="space-y-1">
-                            {order.items.map((item, i) => (
-                              <div key={i} className="flex items-center justify-between text-sm py-1 border-b border-gray-50 last:border-none">
-                                <div className="flex items-center space-x-2">
-                                  <span className="font-bold text-[#573818]">{item.name}</span>
-                                  <span className="text-xs text-gray-500 font-medium">@ RS {item.price}</span>
-                                </div>
-                                <div className="flex items-center space-x-2">
-                                  {!isCompleted && (
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleQtyChange(order._id, item.name, item.quantity, -1);
-                                      }}
-                                      className="w-6 h-6 rounded-full bg-gray-100 hover:bg-[#573818] hover:text-white font-bold flex items-center justify-center text-xs transition"
-                                      title="Decrease quantity"
-                                    >
-                                      -
-                                    </button>
-                                  )}
-                                  <span className="font-bold text-xs text-[#2e1700] w-6 text-center">x{item.quantity}</span>
-                                  {!isCompleted && (
-                                    <button
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleQtyChange(order._id, item.name, item.quantity, 1);
-                                      }}
-                                      className="w-6 h-6 rounded-full bg-gray-100 hover:bg-[#573818] hover:text-white font-bold flex items-center justify-center text-xs transition"
-                                      title="Increase quantity"
-                                    >
-                                      +
-                                    </button>
-                                  )}
-                                </div>
-                              </div>
-                            ))}
-                          </div>
-
-                          {/* Order Actions */}
-                          <div className="flex items-center justify-between pt-2">
-                            <span className="text-xs text-gray-400">
-                              Click card to view details
-                            </span>
-                            <div className="flex space-x-2">
-                              {isCompleted ? (
-                                <span className="text-xs font-bold text-green-700 bg-green-50 px-3 py-1.5 rounded-lg border border-green-200 flex items-center space-x-1">
-                                  <i className="bx bx-check-circle"></i>
-                                  <span>Confirmed</span>
-                                </span>
-                              ) : (
-                                <button
-                                  onClick={(e) => {
-                                    e.stopPropagation();
-                                    handleBuyNow(order._id);
-                                  }}
-                                  className="bg-[#573818] hover:bg-[#8d5524] text-white text-xs font-bold px-4 py-1.5 rounded-lg transition shadow-sm cursor-pointer"
-                                >
-                                  Buy Now
-                                </button>
-                              )}
+                        {/* Order Actions */}
+                        <div className="flex items-center justify-between pt-2">
+                          <span className="text-xs text-gray-400">
+                            Click card to view details
+                          </span>
+                          <div className="flex space-x-2">
+                            {isCompleted ? (
+                              <span className="text-xs font-bold text-green-700 bg-green-50 px-3 py-1.5 rounded-lg border border-green-200 flex items-center space-x-1">
+                                <i className="bx bx-check-circle"></i>
+                                <span>Confirmed</span>
+                              </span>
+                            ) : (
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleRemove(order._id);
+                                  handleBuyNow(order._id);
                                 }}
-                                className="bg-transparent hover:bg-red-50 text-red-600 border border-red-200 text-xs font-bold px-3 py-1.5 rounded-lg transition cursor-pointer"
+                                className="bg-[#573818] hover:bg-[#8d5524] text-white text-xs font-bold px-4 py-1.5 rounded-lg transition shadow-sm cursor-pointer"
                               >
-                                {isCompleted ? "Delete Record" : "Cancel"}
+                                Buy Now
                               </button>
-                            </div>
+                            )}
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleRemove(order._id);
+                              }}
+                              className="bg-transparent hover:bg-red-50 text-red-600 border border-red-200 text-xs font-bold px-3 py-1.5 rounded-lg transition cursor-pointer"
+                            >
+                              {isCompleted ? "Delete Record" : "Cancel"}
+                            </button>
                           </div>
                         </div>
                       </div>
                     </div>
-                  );
-                })
-              )}
+                  </div>
+                );
+              })}
             </div>
 
             {/* Right: Selected Order Detail Preview Card (5 cols, Sticky) */}
