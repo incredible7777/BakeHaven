@@ -259,7 +259,7 @@ const Orders = ({ onOpenAuth }) => {
               <span>Cart</span>
             </h1>
             <p className="text-sm md:text-base text-[#8d5524] mt-1 font-medium">
-              Review your cake orders, enter delivery address, pay securely with Razorpay, and download invoices.
+              Review your cake orders : 
             </p>
           </div>
           <Link
@@ -656,206 +656,317 @@ const Orders = ({ onOpenAuth }) => {
       {isAddressModalOpen && orderToCheckout && (
         <div
           onClick={() => setIsAddressModalOpen(false)}
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 backdrop-blur-sm p-3 sm:p-4 overflow-y-auto"
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="relative w-full max-w-lg bg-gradient-to-br from-[#fffbe9] to-[#f8e7d2] rounded-3xl shadow-2xl p-6 md:p-8 border border-[#573818]/20 my-8 animate-modal"
+            className="relative w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-stone-200 overflow-hidden my-6 animate-modal font-sans text-stone-800"
           >
-            {/* Close Button */}
-            <button
-              onClick={() => setIsAddressModalOpen(false)}
-              className="absolute top-5 right-5 text-[#573818] hover:text-black text-2xl font-bold focus:outline-none cursor-pointer"
-            >
-              &times;
-            </button>
-
-            {/* Modal Title */}
-            <div className="text-center mb-6">
-              <div className="w-12 h-12 bg-[#573818] text-white rounded-full flex items-center justify-center mx-auto mb-2 shadow">
-                <i className="bx bxs-truck text-2xl"></i>
+            {/* Header Banner */}
+            <div className="bg-gradient-to-r from-[#fffbe9] via-[#fdf5e6] to-[#fffbe9] border-b border-[#573818]/15 px-6 py-5">
+              <div className="flex items-start justify-between">
+                <div className="flex items-center space-x-3">
+                  <div className="w-11 h-11 rounded-2xl bg-[#573818] text-white flex items-center justify-center shadow-sm shrink-0">
+                    <i className="bx bxs-truck text-2xl"></i>
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-[#573818] font-uchen tracking-wide">
+                      Delivery & Cake Details
+                    </h3>
+                    <p className="text-xs text-stone-500 font-sans mt-0.5">
+                      Where should we deliver your freshly baked BakeHaven treats?
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsAddressModalOpen(false)}
+                  className="w-8 h-8 rounded-full bg-stone-100 hover:bg-stone-200 text-stone-500 hover:text-stone-800 flex items-center justify-center transition cursor-pointer text-xl font-bold ml-2 shrink-0"
+                  aria-label="Close modal"
+                >
+                  <i className="bx bx-x"></i>
+                </button>
               </div>
-              <h3 className="text-2xl font-bold text-[#573818]">Delivery & Cake Details</h3>
-              <p className="text-xs text-[#8d5524] mt-0.5">
-                Where should we deliver your freshly baked BakeHaven treats?
-              </p>
+
+              {/* Order Quick Badge */}
+              <div className="mt-3.5 flex items-center justify-between bg-white/90 backdrop-blur-xs px-3.5 py-2 rounded-xl border border-[#573818]/10 text-xs font-medium">
+                <div className="flex items-center space-x-2 text-stone-600">
+                  <span className="font-bold text-[#573818]">
+                    Order #{String(orderToCheckout._id).slice(-6).toUpperCase()}
+                  </span>
+                  <span>•</span>
+                  <span>{orderToCheckout.items.length} item{orderToCheckout.items.length > 1 ? "s" : ""}</span>
+                </div>
+                <div className="font-bold text-[#a16d0e]">
+                  Total: RS {orderToCheckout.totalAmount || orderToCheckout.items.reduce((s, it) => s + (it.price * it.quantity), 0)}
+                </div>
+              </div>
             </div>
 
             {/* Form */}
-            <form onSubmit={handleAddressSubmit} className="space-y-4">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-[#573818] mb-1">
-                    Recipient Full Name <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={deliveryForm.fullName}
-                    onChange={(e) => setDeliveryForm({ ...deliveryForm, fullName: e.target.value })}
-                    placeholder="e.g. John Doe"
-                    className="w-full px-3 py-2 bg-white border border-[#e2b58d] rounded-xl text-xs md:text-sm text-[#2e1700] focus:outline-none focus:border-[#573818]"
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-[#573818] mb-1">
-                    Contact Phone Number <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="tel"
-                    required
-                    value={deliveryForm.phone}
-                    onChange={(e) => setDeliveryForm({ ...deliveryForm, phone: e.target.value })}
-                    placeholder="e.g. 9876543210"
-                    className="w-full px-3 py-2 bg-white border border-[#e2b58d] rounded-xl text-xs md:text-sm text-[#2e1700] focus:outline-none focus:border-[#573818]"
-                  />
-                </div>
-              </div>
-
+            <form onSubmit={handleAddressSubmit} className="p-5 sm:p-6 space-y-4 max-h-[75vh] overflow-y-auto">
+              {/* Section 1: Contact & Delivery Location */}
               <div>
-                <label className="block text-xs font-bold text-[#573818] mb-1">
-                  Street Address & House / Flat No. <span className="text-red-500">*</span>
-                </label>
-                <textarea
-                  required
-                  rows={2}
-                  value={deliveryForm.address}
-                  onChange={(e) => setDeliveryForm({ ...deliveryForm, address: e.target.value })}
-                  placeholder="e.g. Flat 302, Rosewood Heights, Near City Mall"
-                  className="w-full px-3 py-2 bg-white border border-[#e2b58d] rounded-xl text-xs md:text-sm text-[#2e1700] focus:outline-none focus:border-[#573818] resize-none"
-                />
+                <div className="flex items-center space-x-1.5 text-xs font-bold text-[#573818] uppercase tracking-wider mb-2.5">
+                  <i className="bx bx-map-pin text-[#a16d0e] text-sm"></i>
+                  <span>Delivery Address</span>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">
+                        Recipient Full Name <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <i className="bx bx-user absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-base pointer-events-none"></i>
+                        <input
+                          type="text"
+                          required
+                          value={deliveryForm.fullName}
+                          onChange={(e) => setDeliveryForm({ ...deliveryForm, fullName: e.target.value })}
+                          className="w-full pl-10 pr-3.5 py-2.5 bg-stone-50/70 hover:bg-white focus:bg-white border border-stone-200 rounded-xl text-sm text-stone-900 focus:outline-none focus:border-[#573818] focus:ring-2 focus:ring-[#573818]/15 transition shadow-xs"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">
+                        Contact Phone Number <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <i className="bx bx-phone absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-base pointer-events-none"></i>
+                        <input
+                          type="tel"
+                          required
+                          value={deliveryForm.phone}
+                          onChange={(e) => setDeliveryForm({ ...deliveryForm, phone: e.target.value })}
+                          className="w-full pl-10 pr-3.5 py-2.5 bg-stone-50/70 hover:bg-white focus:bg-white border border-stone-200 rounded-xl text-sm text-stone-900 focus:outline-none focus:border-[#573818] focus:ring-2 focus:ring-[#573818]/15 transition shadow-xs"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-semibold text-stone-700 mb-1">
+                      Street Address & House / Flat No. <span className="text-red-500">*</span>
+                    </label>
+                    <div className="relative">
+                      <i className="bx bx-home-alt absolute left-3.5 top-3 text-stone-400 text-base pointer-events-none"></i>
+                      <textarea
+                        required
+                        rows={2}
+                        value={deliveryForm.address}
+                        onChange={(e) => setDeliveryForm({ ...deliveryForm, address: e.target.value })}
+                        className="w-full pl-10 pr-3.5 py-2.5 bg-stone-50/70 hover:bg-white focus:bg-white border border-stone-200 rounded-xl text-sm text-stone-900 focus:outline-none focus:border-[#573818] focus:ring-2 focus:ring-[#573818]/15 transition shadow-xs resize-none"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">
+                        City <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <i className="bx bx-buildings absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-base pointer-events-none"></i>
+                        <input
+                          type="text"
+                          required
+                          value={deliveryForm.city}
+                          onChange={(e) => setDeliveryForm({ ...deliveryForm, city: e.target.value })}
+                          className="w-full pl-10 pr-3.5 py-2.5 bg-stone-50/70 hover:bg-white focus:bg-white border border-stone-200 rounded-xl text-sm text-stone-900 focus:outline-none focus:border-[#573818] focus:ring-2 focus:ring-[#573818]/15 transition shadow-xs"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">
+                        Pincode / Postal Code <span className="text-red-500">*</span>
+                      </label>
+                      <div className="relative">
+                        <i className="bx bx-map-pin absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-base pointer-events-none"></i>
+                        <input
+                          type="text"
+                          required
+                          value={deliveryForm.pincode}
+                          onChange={(e) => setDeliveryForm({ ...deliveryForm, pincode: e.target.value })}
+                          className="w-full pl-10 pr-3.5 py-2.5 bg-stone-50/70 hover:bg-white focus:bg-white border border-stone-200 rounded-xl text-sm text-stone-900 focus:outline-none focus:border-[#573818] focus:ring-2 focus:ring-[#573818]/15 transition shadow-xs"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-bold text-[#573818] mb-1">
-                    City <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={deliveryForm.city}
-                    onChange={(e) => setDeliveryForm({ ...deliveryForm, city: e.target.value })}
-                    placeholder="e.g. Mumbai"
-                    className="w-full px-3 py-2 bg-white border border-[#e2b58d] rounded-xl text-xs md:text-sm text-[#2e1700] focus:outline-none focus:border-[#573818]"
-                  />
+              {/* Section 2: Delivery Schedule & Cake Plaque */}
+              <div className="pt-3 border-t border-stone-100">
+                <div className="flex items-center space-x-1.5 text-xs font-bold text-[#573818] uppercase tracking-wider mb-2.5">
+                  <i className="bx bx-calendar-event text-[#a16d0e] text-sm"></i>
+                  <span>Schedule & Inscription</span>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-[#573818] mb-1">
-                    Pincode / Postal Code <span className="text-red-500">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={deliveryForm.pincode}
-                    onChange={(e) => setDeliveryForm({ ...deliveryForm, pincode: e.target.value })}
-                    placeholder="e.g. 400001"
-                    className="w-full px-3 py-2 bg-white border border-[#e2b58d] rounded-xl text-xs md:text-sm text-[#2e1700] focus:outline-none focus:border-[#573818]"
-                  />
+
+                <div className="space-y-3">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">
+                        Preferred Delivery Date
+                      </label>
+                      <div className="relative">
+                        <i className="bx bx-calendar absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-base pointer-events-none"></i>
+                        <input
+                          type="date"
+                          min={new Date().toISOString().split("T")[0]}
+                          value={deliveryForm.deliveryDate}
+                          onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryDate: e.target.value })}
+                          className="w-full pl-10 pr-3.5 py-2.5 bg-stone-50/70 hover:bg-white focus:bg-white border border-stone-200 rounded-xl text-sm text-stone-900 focus:outline-none focus:border-[#573818] focus:ring-2 focus:ring-[#573818]/15 transition shadow-xs cursor-pointer"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-xs font-semibold text-stone-700 mb-1">
+                        Delivery Time Slot
+                      </label>
+                      <div className="relative">
+                        <i className="bx bx-time-five absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-base pointer-events-none"></i>
+                        <select
+                          value={deliveryForm.deliveryTimeSlot}
+                          onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryTimeSlot: e.target.value })}
+                          className="w-full pl-10 pr-8 py-2.5 bg-stone-50/70 hover:bg-white focus:bg-white border border-stone-200 rounded-xl text-sm text-stone-900 focus:outline-none focus:border-[#573818] focus:ring-2 focus:ring-[#573818]/15 transition shadow-xs cursor-pointer appearance-none"
+                        >
+                          <option value="Morning (9:00 AM - 1:00 PM)">Morning (9:00 AM - 1:00 PM)</option>
+                          <option value="Afternoon (1:00 PM - 5:00 PM)">Afternoon (1:00 PM - 5:00 PM)</option>
+                          <option value="Evening (5:00 PM - 9:00 PM)">Evening (5:00 PM - 9:00 PM)</option>
+                        </select>
+                        <i className="bx bx-chevron-down absolute right-3.5 top-1/2 -translate-y-1/2 text-stone-400 pointer-events-none"></i>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label className="text-xs font-semibold text-stone-700 flex items-center space-x-1.5">
+                        <i className="bx bxs-cake text-[#a16d0e]"></i>
+                        <span>Custom Message on Cake Plaque</span>
+                        <span className="text-[11px] text-stone-400 font-normal">(Optional)</span>
+                      </label>
+                      <span className="text-[10px] text-stone-400">{deliveryForm.customNote?.length || 0}/50</span>
+                    </div>
+                    <div className="relative">
+                      <i className="bx bx-message-square-edit absolute left-3.5 top-1/2 -translate-y-1/2 text-stone-400 text-base pointer-events-none"></i>
+                      <input
+                        type="text"
+                        maxLength={50}
+                        value={deliveryForm.customNote}
+                        onChange={(e) => setDeliveryForm({ ...deliveryForm, customNote: e.target.value })}
+                        className="w-full pl-10 pr-3.5 py-2.5 bg-stone-50/70 hover:bg-white focus:bg-white border border-stone-200 rounded-xl text-sm text-stone-900 focus:outline-none focus:border-[#573818] focus:ring-2 focus:ring-[#573818]/15 transition shadow-xs"
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Delivery Schedule: Date & Slot */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
-                <div>
-                  <label className="block text-xs font-bold text-[#573818] mb-1">
-                    Preferred Delivery Date
-                  </label>
-                  <input
-                    type="date"
-                    min={new Date().toISOString().split("T")[0]}
-                    value={deliveryForm.deliveryDate}
-                    onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryDate: e.target.value })}
-                    className="w-full px-3 py-2 bg-white border border-[#e2b58d] rounded-xl text-xs md:text-sm text-[#2e1700] focus:outline-none focus:border-[#573818]"
-                  />
+              {/* Section 3: Payment Method */}
+              <div className="pt-3 border-t border-stone-100">
+                <div className="flex items-center space-x-1.5 text-xs font-bold text-[#573818] uppercase tracking-wider mb-2.5">
+                  <i className="bx bx-credit-card-front text-[#a16d0e] text-sm"></i>
+                  <span>Choose Payment Method</span>
                 </div>
-                <div>
-                  <label className="block text-xs font-bold text-[#573818] mb-1">
-                    Delivery Time Slot
-                  </label>
-                  <select
-                    value={deliveryForm.deliveryTimeSlot}
-                    onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryTimeSlot: e.target.value })}
-                    className="w-full px-3 py-2 bg-white border border-[#e2b58d] rounded-xl text-xs md:text-sm text-[#2e1700] focus:outline-none focus:border-[#573818]"
-                  >
-                    <option value="Morning (9:00 AM - 1:00 PM)">Morning (9:00 AM - 1:00 PM)</option>
-                    <option value="Afternoon (1:00 PM - 5:00 PM)">Afternoon (1:00 PM - 5:00 PM)</option>
-                    <option value="Evening (5:00 PM - 9:00 PM)">Evening (5:00 PM - 9:00 PM)</option>
-                  </select>
-                </div>
-              </div>
 
-              {/* Message on Cake Plaque */}
-              <div>
-                <label className="block text-xs font-bold text-[#573818] mb-1 flex items-center justify-between">
-                  <span>Custom Message on Cake Plaque (Optional)</span>
-                  <span className="text-[10px] text-gray-500 font-normal">e.g. Piping text</span>
-                </label>
-                <input
-                  type="text"
-                  maxLength={50}
-                  value={deliveryForm.customNote}
-                  onChange={(e) => setDeliveryForm({ ...deliveryForm, customNote: e.target.value })}
-                  placeholder='e.g. "Happy 25th Birthday Maya!"'
-                  className="w-full px-3 py-2 bg-white border border-[#e2b58d] rounded-xl text-xs md:text-sm text-[#2e1700] focus:outline-none focus:border-[#573818]"
-                />
-              </div>
-
-              {/* Payment Method Selector */}
-              <div className="pt-2 border-t border-[#573818]/15">
-                <label className="block text-xs font-bold text-[#573818] mb-2">
-                  Choose Payment Method
-                </label>
-                <div className="grid grid-cols-2 gap-3">
-                  <button
-                    type="button"
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  {/* Razorpay Card */}
+                  <div
                     onClick={() => setDeliveryForm({ ...deliveryForm, paymentMethod: "Razorpay" })}
-                    className={`p-3 rounded-2xl border text-left transition flex flex-col justify-between cursor-pointer ${
+                    className={`relative p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex items-start space-x-3 ${
                       deliveryForm.paymentMethod === "Razorpay"
-                        ? "border-[#573818] bg-white ring-2 ring-[#573818]/20 shadow-sm"
-                        : "border-gray-200 bg-white/60 hover:bg-white text-gray-700"
+                        ? "border-[#573818] bg-[#fffbe9]/80 shadow-sm"
+                        : "border-stone-200 bg-white hover:border-stone-300"
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#573818]">Online Payment</span>
-                      <i className="bx bx-credit-card text-lg text-[#a16d0e]"></i>
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 transition-all ${
+                        deliveryForm.paymentMethod === "Razorpay"
+                          ? "border-[#573818] bg-[#573818]"
+                          : "border-stone-300 bg-white"
+                      }`}
+                    >
+                      {deliveryForm.paymentMethod === "Razorpay" && (
+                        <div className="w-2 h-2 rounded-full bg-white"></div>
+                      )}
                     </div>
-                    <span className="text-[10px] text-gray-500 mt-1">UPI, Cards, GPay</span>
-                  </button>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-stone-900">Online Payment</span>
+                        <i className="bx bx-credit-card text-base text-[#a16d0e]"></i>
+                      </div>
+                      <p className="text-[11px] text-stone-500 mt-0.5">UPI, Cards, GPay, NetBanking</p>
+                    </div>
+                  </div>
 
-                  <button
-                    type="button"
+                  {/* Cash on Delivery Card */}
+                  <div
                     onClick={() => setDeliveryForm({ ...deliveryForm, paymentMethod: "COD" })}
-                    className={`p-3 rounded-2xl border text-left transition flex flex-col justify-between cursor-pointer ${
+                    className={`relative p-3.5 rounded-2xl border-2 transition-all cursor-pointer flex items-start space-x-3 ${
                       deliveryForm.paymentMethod === "COD"
-                        ? "border-[#573818] bg-white ring-2 ring-[#573818]/20 shadow-sm"
-                        : "border-gray-200 bg-white/60 hover:bg-white text-gray-700"
+                        ? "border-[#573818] bg-[#fffbe9]/80 shadow-sm"
+                        : "border-stone-200 bg-white hover:border-stone-300"
                     }`}
                   >
-                    <div className="flex items-center justify-between">
-                      <span className="text-xs font-bold text-[#573818]">Cash on Delivery</span>
-                      <i className="bx bx-money text-lg text-green-700"></i>
+                    <div
+                      className={`w-5 h-5 rounded-full border-2 mt-0.5 flex items-center justify-center shrink-0 transition-all ${
+                        deliveryForm.paymentMethod === "COD"
+                          ? "border-[#573818] bg-[#573818]"
+                          : "border-stone-300 bg-white"
+                      }`}
+                    >
+                      {deliveryForm.paymentMethod === "COD" && (
+                        <div className="w-2 h-2 rounded-full bg-white"></div>
+                      )}
                     </div>
-                    <span className="text-[10px] text-gray-500 mt-1">Pay upon arrival</span>
-                  </button>
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-bold text-stone-900">Cash on Delivery</span>
+                        <i className="bx bx-money text-base text-emerald-600"></i>
+                      </div>
+                      <p className="text-[11px] text-stone-500 mt-0.5">Pay upon arrival at your doorstep</p>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              {/* Submit Button */}
-              <div className="pt-2">
+              {/* Order Guarantee & Submit Button */}
+              <div className="pt-2 border-t border-stone-200 space-y-2.5">
+                <div className="flex items-center justify-between text-xs text-stone-600 bg-stone-50 px-3.5 py-2 rounded-xl border border-stone-200/70">
+                  <div className="flex items-center space-x-1.5">
+                    <i className="bx bxs-shield-check text-base text-emerald-600"></i>
+                    <span className="font-medium">100% Fresh & Safe Bakery Delivery</span>
+                  </div>
+                  <div className="font-bold text-[#573818] text-sm">
+                    RS {orderToCheckout.totalAmount || orderToCheckout.items.reduce((s, it) => s + (it.price * it.quantity), 0)}
+                  </div>
+                </div>
+
                 <button
                   type="submit"
                   disabled={isProcessingPayment}
-                  className="w-full py-3 bg-[#573818] hover:bg-[#a16d0e] active:scale-98 text-white font-bold rounded-xl text-sm transition shadow-lg flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-60"
+                  className="w-full py-3.5 bg-[#573818] hover:bg-[#8d5524] active:scale-[0.99] text-white font-bold rounded-xl text-sm transition-all shadow-md hover:shadow-lg flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-60"
                 >
-                  <i className={deliveryForm.paymentMethod === "Razorpay" ? "bx bx-credit-card text-lg" : "bx bx-check-circle text-lg"}></i>
-                  <span>
-                    {isProcessingPayment
-                      ? "Processing..."
-                      : deliveryForm.paymentMethod === "Razorpay"
-                      ? `Confirm & Pay RS ${orderToCheckout.totalAmount || orderToCheckout.items.reduce((s, it) => s + (it.price * it.quantity), 0)} with Razorpay`
-                      : `Place Order (Cash on Delivery)`}
-                  </span>
+                  {isProcessingPayment ? (
+                    <>
+                      <i className="bx bx-loader-alt animate-spin text-lg"></i>
+                      <span>Processing...</span>
+                    </>
+                  ) : deliveryForm.paymentMethod === "Razorpay" ? (
+                    <>
+                      <i className="bx bx-lock-alt text-base"></i>
+                      <span>Confirm & Pay RS {orderToCheckout.totalAmount || orderToCheckout.items.reduce((s, it) => s + (it.price * it.quantity), 0)} with Razorpay</span>
+                    </>
+                  ) : (
+                    <>
+                      <i className="bx bx-check-circle text-base"></i>
+                      <span>Place Order (Cash on Delivery)</span>
+                    </>
+                  )}
                 </button>
               </div>
             </form>
