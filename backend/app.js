@@ -4,7 +4,11 @@ import express from "express";
 import cors from "cors";
 import cookieParser from "cookie-parser";
 import { errorHandler, notFoundHandler } from "./middlewares/error.middleware.js";
+
 const app = express();
+
+// Trust reverse proxy for HTTPS termination (Render, Railway, Heroku, AWS)
+app.set("trust proxy", 1);
 
 // 1. CORS Configuration (Allows frontend React to connect securely with credentials)
 app.use(
