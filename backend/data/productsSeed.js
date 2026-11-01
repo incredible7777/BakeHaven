@@ -1,15 +1,15 @@
-// Purpose:Original 12 Cakes Data Catalog
+// Purpose: Original 12 Cakes Data Catalog with Accurate Flavor Matching & Category Tagging
 
 export const products = [
-  //Section 1: CAKES
+  // Section 1: CAKES
   {
     name: "Cream Cake",
     category: "Cakes",
     price: 1550,
     image: "/image/c1.png",
     quote: "Birthdays are nature's way of telling us to eat more cake.",
-    description: "A delicious cream cake with soft layers and rich cream.",
-    stars: 3,
+    description: "A delicious multi-layered cream party cake designed to be the life of every celebration.",
+    stars: 5,
   },
   {
     name: "Choco Cake",
@@ -17,16 +17,16 @@ export const products = [
     price: 1600,
     image: "/image/c2.png",
     quote: "Let them eat cake. - Marie Antoinette",
-    description: "Rich chocolate cake for chocolate lovers.",
-    stars: 3,
+    description: "Rich dark Belgian chocolate cake crafted for chocolate lovers.",
+    stars: 4,
   },
   {
-    name: "Slice Cake",
+    name: "Vanilla Slice Cake",
     category: "Cakes",
     price: 1000,
     image: "/image/c3.png",
     quote: "Birthdays are nature's way of telling us to eat more cake.",
-    description: "Perfect individual portion of soft sponge cake.",
+    description: "Classic velvety vanilla slice with soft layered sponge and delicate buttercream.",
     stars: 4,
   },
   {
@@ -35,7 +35,7 @@ export const products = [
     price: 1230,
     image: "/image/c4.png",
     quote: "Cake is the answer, no matter the question.",
-    description: "Fresh fruit cake infused with delicious seasonal fruits.",
+    description: "Fresh fruit gateau infused with delicious seasonal berries and fruits.",
     stars: 5,
   },
   {
@@ -44,17 +44,17 @@ export const products = [
     price: 1110,
     image: "/image/c5.png",
     quote: "A party without cake is just a meeting.",
-    description: "Moist caramel and roasted walnut brown cake.",
-    stars: 3,
+    description: "Moist caramel and roasted walnut party brown cake. A party without cake is just a meeting.",
+    stars: 4,
   },
   {
-    name: "Vanilla Slice Cake",
+    name: "Chocolate Slice Cake",
     category: "Cakes",
     price: 1150,
     image: "/image/c6.png",
     quote: "Life is uncertain. Eat dessert first.",
-    description: "Classic velvety vanilla sponge with buttercream icing.",
-    stars: 3,
+    description: "Rich dark chocolate slice cake layered with velvety cocoa fudge icing.",
+    stars: 4,
   },
   {
     name: "Berry Fruit Cake",
@@ -62,7 +62,7 @@ export const products = [
     price: 1200,
     image: "/image/c7.png",
     quote: "Cake is the language of love.",
-    description: "Sweet berry cake loaded with glazed strawberries.",
+    description: "Sweet berry party cake loaded with glazed strawberries.",
     stars: 4,
   },
   {
@@ -71,18 +71,18 @@ export const products = [
     price: 300,
     image: "/image/c8.png",
     quote: "Cake is a gift you can give yourself.",
-    description: "Choco indulgence topped with dark chocolate flakes.",
+    description: "Choco indulgence topped with dark chocolate flakes and cocoa fudge.",
     stars: 5,
   },
 
-  //Section 2: BIRTHDAY CAKE
+  // Section 2: BIRTHDAY CAKE & CELEBRATION
   {
     name: "Birthday Deluxe Cake",
     category: "Birthday Cake",
     price: 500,
     image: "/image/c9.png",
     quote: "Cake is like a warm hug, it makes everything better.",
-    description: "Special celebration cake tailored for memorable birthday parties.",
+    description: "Special celebration party cake tailored for memorable birthday parties.",
     stars: 5,
   },
   {
@@ -91,7 +91,7 @@ export const products = [
     price: 300,
     image: "/image/c10.png",
     quote: "Cake is the ultimate comfort food.",
-    description: "Individual birthday celebration cupcake with festive frosting.",
+    description: "Individual birthday celebration cupcake with festive party frosting.",
     stars: 5,
   },
   {
@@ -100,7 +100,7 @@ export const products = [
     price: 100,
     image: "/image/c11.png",
     quote: "Cake is the perfect ending to any meal.",
-    description: "Light strawberry whipped frosting on golden sponge.",
+    description: "Light strawberry whipped frosting on golden sponge for festive birthdays.",
     stars: 5,
   },
   {
@@ -109,7 +109,7 @@ export const products = [
     price: 500,
     image: "/image/c12.png",
     quote: "Cake is a celebration of life.",
-    description: "Artisan gourmet cupcake with creamy swirl icing.",
+    description: "Artisan gourmet party cupcake with creamy swirl icing for special celebrations.",
     stars: 5,
   },
 ];

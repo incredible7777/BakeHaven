@@ -128,8 +128,8 @@ const Navbar = ({ onOpenAuth, onSelectCategory }) => {
             className="w-10 h-10 object-contain transition-transform duration-300 group-hover:scale-105 shrink-0"
           />
           <span className="flex items-center gap-1.5 translate-y-[2.5px] leading-none text-white tracking-normal font-bold">
-            <span>Cake</span>
-            <span>Bakery</span>
+            <span>Bake</span>
+            <span>Haven</span>
           </span>
         </Link>
 

@@ -1,6 +1,7 @@
-
+// ========================================================
+// File: frontend/src/components/ProductSection.jsx
 // Purpose: Categorized Cake Display Grids with Smart Search, Filter Chips & Uniform Alignment
-
+// ========================================================
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../redux/slices/productSlice";
@@ -22,16 +23,41 @@ const ProductSection = ({ selectedCategory, onSelectCategory, onQuickView, onOpe
     );
   }
 
-  // Smart filter: Matches category name or cake title (e.g. "Chocolate", "Slice", "Cup", "Birthday")
+  // Smart filter: Matches category name, title, description, or quote
   const displayProducts = selectedCategory
     ? products.filter((p) => {
         const cat = selectedCategory.toLowerCase();
         const keyword = cat.replace(" cake", "").trim();
-        return (
-          p.category.toLowerCase() === cat ||
-          p.name.toLowerCase().includes(keyword) ||
-          p.description.toLowerCase().includes(keyword)
-        );
+
+        // 1. Direct category match
+        if (p.category && p.category.toLowerCase().includes(keyword)) return true;
+
+        // 2. Direct name match
+        if (p.name && p.name.toLowerCase().includes(keyword)) return true;
+
+        // 3. Description & quote match
+        if (p.description && p.description.toLowerCase().includes(keyword)) return true;
+        if (p.quote && p.quote.toLowerCase().includes(keyword)) return true;
+
+        // 4. Special category mappings:
+        // "Party Cake": includes party & celebration cakes
+        if (keyword === "party") {
+          return (
+            (p.name && (p.name.includes("Celebration") || p.name.includes("Cream") || p.name.includes("Deluxe"))) ||
+            (p.description && (p.description.toLowerCase().includes("party") || p.description.toLowerCase().includes("celebrat"))) ||
+            (p.quote && p.quote.toLowerCase().includes("party"))
+          );
+        }
+
+        // "Chocolate Cake": includes "choco"
+        if (keyword === "chocolate") {
+          return (
+            (p.name && p.name.toLowerCase().includes("choco")) ||
+            (p.description && p.description.toLowerCase().includes("choco"))
+          );
+        }
+
+        return false;
       })
     : products;
 
@@ -67,7 +93,7 @@ const ProductSection = ({ selectedCategory, onSelectCategory, onQuickView, onOpe
         </div>
       )}
 
-      {/* SECTION 1: CAKES */}
+      {/* SECTION 1: CAKES / FILTERED CATEGORY */}
       {(cakes.length > 0 || selectedCategory) && (
         <div data-aos="fade-up" data-aos-duration="1500" className="mb-20">
           <h2 className="text-3xl md:text-4xl font-bold text-center text-[#a16d0e] drop-shadow border-b-2 border-[#a16d0e] pb-3 mb-12 tracking-widest uppercase">
