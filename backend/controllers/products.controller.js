@@ -2,7 +2,7 @@
 import { Product } from "../models/product.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import { asyncHandler } from "../utils/AsyncHandler.js";
 
 //purpose: get all cakes or filter by category using query param
 export const getAllProducts = asyncHandler(async (req, res) => {

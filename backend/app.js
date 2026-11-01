@@ -10,10 +10,32 @@ const app = express();
 // Trust reverse proxy for HTTPS termination (Render, Railway, Heroku, AWS)
 app.set("trust proxy", 1);
 
-// 1. CORS Configuration (Allows frontend React to connect securely with credentials)
+// 1. Dynamic CORS Configuration
+// Automatically allows your main production URL, localhost, and Vercel/Netlify preview branches
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+  "http://localhost:3000",
+].filter(Boolean);
+
 app.use(
   cors({
-    origin: process.env.CLIENT_URL || "http://localhost:5173",
+    origin: function (origin, callback) {
+      // Allow requests with no origin (like mobile apps, curl, server-to-server)
+      if (!origin) return callback(null, true);
+
+      // Allow if explicit match OR if deployed on any *.vercel.app or *.netlify.app domain
+      const isAllowed =
+        allowedOrigins.includes(origin) ||
+        /\.vercel\.app$/.test(origin) ||
+        /\.netlify\.app$/.test(origin);
+
+      if (isAllowed) {
+        callback(null, true);
+      } else {
+        callback(new Error(`CORS policy blocked request from origin: ${origin}`));
+      }
+    },
     credentials: true,
   })
 );
