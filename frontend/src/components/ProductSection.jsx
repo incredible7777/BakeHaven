@@ -1,7 +1,6 @@
-// ========================================================
-// File: frontend/src/components/ProductSection.jsx
+
 // Purpose: Categorized Cake Display Grids with Smart Search, Filter Chips & Uniform Alignment
-// ========================================================
+
 import React, { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { fetchProducts } from "../redux/slices/productSlice";
