@@ -1,6 +1,6 @@
 // ========================================================
 // File: frontend/src/pages/Orders.jsx
-// Purpose: Orders Page with Razorpay Payment Integration, PDF Invoice & Item Merging
+// Purpose: Orders Page with Delivery Address Modal, Cake Plaque Note, Razorpay & Invoices
 // ========================================================
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -26,6 +26,21 @@ const Orders = ({ onOpenAuth }) => {
   const [suggestionQuantities, setSuggestionQuantities] = useState([1, 1, 1, 1]);
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
+  // Delivery Address & Checkout Modal State
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+  const [orderToCheckout, setOrderToCheckout] = useState(null);
+  const [deliveryForm, setDeliveryForm] = useState({
+    fullName: "",
+    phone: "",
+    address: "",
+    city: "",
+    pincode: "",
+    deliveryDate: "",
+    deliveryTimeSlot: "Afternoon (1:00 PM - 5:00 PM)",
+    customNote: "",
+    paymentMethod: "Razorpay", // "Razorpay" or "COD"
+  });
+
   const suggestions = [
     { name: "Cream Cake", description: "Delicious layered sponge with fresh dairy cream.", price: 1200, image: "/image/c1.png" },
     { name: "Choco Cake", description: "Rich Belgian chocolate sponge with dark fudge ganache.", price: 1600, image: "/image/c2.png" },
@@ -42,13 +57,27 @@ const Orders = ({ onOpenAuth }) => {
     }
   }, [user, dispatch, navigate, onOpenAuth]);
 
+  // Set default tomorrow date & user name for delivery
+  useEffect(() => {
+    if (user) {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      const tomorrowStr = tomorrow.toISOString().split("T")[0];
+
+      setDeliveryForm((prev) => ({
+        ...prev,
+        fullName: prev.fullName || user.name || "",
+        deliveryDate: prev.deliveryDate || tomorrowStr,
+      }));
+    }
+  }, [user]);
+
   // Always derive active order from fresh Redux state
   const activeOrder = orders.find((o) => o._id === selectedOrderId) || orders[0] || null;
 
   const handleQtyChange = (orderId, itemName, currentQty, delta) => {
     const newQty = currentQty + delta;
     if (newQty <= 0) {
-      // Decrementing to 0 immediately removes this item from the order
       dispatch(updateOrderQty({ orderId, itemName, quantity: 0 }));
       return;
     }
@@ -64,35 +93,55 @@ const Orders = ({ onOpenAuth }) => {
     }
   };
 
-  // Cash on Delivery Checkout
-  const handleCODCheckout = async (orderId) => {
+  // Open the Delivery Address Modal before checkout
+  const handleOpenCheckout = (order) => {
+    if (!order || !order.items || order.items.length === 0) {
+      alert("Cannot checkout an empty order.");
+      return;
+    }
+    setOrderToCheckout(order);
+    setIsAddressModalOpen(true);
+  };
+
+  // Cash on Delivery Checkout with Address
+  const handleCODCheckout = async (orderId, addressData) => {
     try {
-      await dispatch(checkoutOrder(orderId)).unwrap();
+      setIsProcessingPayment(true);
+      await dispatch(
+        checkoutOrder({
+          orderId,
+          deliveryAddress: addressData,
+          paymentMethod: "COD",
+        })
+      ).unwrap();
+
       dispatch(fetchOrders());
-      alert(`🎉 Thank you for your order! Order #${String(orderId).slice(-6).toUpperCase()} is confirmed for Cash on Delivery and being prepared fresh at BakeHaven!`);
+      setIsAddressModalOpen(false);
+      alert(`🎉 Thank you! Order #${String(orderId).slice(-6).toUpperCase()} is confirmed for Cash on Delivery! Prepared fresh with love at BakeHaven.`);
     } catch {
       alert(`Order #${String(orderId).slice(-6).toUpperCase()} processed successfully!`);
       dispatch(fetchOrders());
+      setIsAddressModalOpen(false);
+    } finally {
+      setIsProcessingPayment(false);
     }
   };
 
-  // Online Payment with Razorpay
-  const handleRazorpayPayment = async (order) => {
-    if (!order || !order.items || order.items.length === 0) {
-      alert("Cannot process an empty order.");
-      return;
-    }
-
+  // Online Payment with Razorpay and Delivery Address
+  const handleRazorpayPayment = async (order, addressData) => {
     if (!window.Razorpay) {
-      alert("Razorpay payment gateway is still loading. Please check your internet connection or try again in a few seconds.");
+      alert("Razorpay payment gateway is loading. Please check your internet connection or try again in a few seconds.");
       return;
     }
 
     try {
       setIsProcessingPayment(true);
 
-      // 1. Call backend to create Razorpay Order
-      const res = await api.post("/payment/create-order", { orderId: order._id });
+      // 1. Call backend to create Razorpay Order with delivery address
+      const res = await api.post("/payment/create-order", {
+        orderId: order._id,
+        deliveryAddress: addressData,
+      });
       const { razorpayOrderId, amount, currency, keyId } = res.data.data;
 
       // 2. Open official Razorpay Checkout Modal
@@ -101,33 +150,34 @@ const Orders = ({ onOpenAuth }) => {
         amount: amount,
         currency: currency,
         name: "BakeHaven",
-        description: `Order #${String(order._id).slice(-6).toUpperCase()} - Artisan Cakes`,
+        description: `Order #${String(order._id).slice(-6).toUpperCase()} - Fresh Artisan Cakes`,
         order_id: razorpayOrderId,
         image: "/image/logo.png",
         handler: async function (response) {
           try {
-            // 3. Send signature and payment ID to backend to verify
+            // 3. Verify signature on backend and persist address
             await api.post("/payment/verify", {
               orderId: order._id,
               razorpayOrderId: response.razorpay_order_id,
               razorpayPaymentId: response.razorpay_payment_id,
               razorpaySignature: response.razorpay_signature,
+              deliveryAddress: addressData,
             });
 
-            // 4. Refresh orders list in Redux
             dispatch(fetchOrders());
-
-            alert(`🎉 Payment Successful! Order #${String(order._id).slice(-6).toUpperCase()} is confirmed! You can now download your official PDF invoice.`);
+            setIsAddressModalOpen(false);
+            alert(`🎉 Payment Successful! Order #${String(order._id).slice(-6).toUpperCase()} is confirmed for delivery to ${addressData.address}! You can now download your invoice.`);
           } catch (err) {
             console.error("Payment verification failed:", err);
-            alert("Payment processed, but backend verification encountered an issue. Please contact support.");
+            alert("Payment processed on Razorpay, but verification encountered an issue. Please contact bakery support.");
           } finally {
             setIsProcessingPayment(false);
           }
         },
         prefill: {
-          name: user?.name || "BakeHaven Customer",
+          name: addressData.fullName || user?.name || "BakeHaven Customer",
           email: user?.email || "customer@bakehaven.com",
+          contact: addressData.phone || "",
         },
         theme: {
           color: "#573818", // BakeHaven brand brown
@@ -149,6 +199,23 @@ const Orders = ({ onOpenAuth }) => {
       console.error("Payment initiation failed:", err);
       alert(err.response?.data?.message || "Failed to initialize payment gateway. Please try again.");
       setIsProcessingPayment(false);
+    }
+  };
+
+  // Submit Handler for Delivery Address Form
+  const handleAddressSubmit = (e) => {
+    e.preventDefault();
+    if (!orderToCheckout) return;
+
+    if (!deliveryForm.fullName.trim() || !deliveryForm.phone.trim() || !deliveryForm.address.trim() || !deliveryForm.city.trim() || !deliveryForm.pincode.trim()) {
+      alert("Please fill in all required delivery address fields (Name, Phone, Address, City, Pincode).");
+      return;
+    }
+
+    if (deliveryForm.paymentMethod === "Razorpay") {
+      handleRazorpayPayment(orderToCheckout, deliveryForm);
+    } else {
+      handleCODCheckout(orderToCheckout._id, deliveryForm);
     }
   };
 
@@ -192,7 +259,7 @@ const Orders = ({ onOpenAuth }) => {
               <span>Cart</span>
             </h1>
             <p className="text-sm md:text-base text-[#8d5524] mt-1 font-medium">
-              Review your current cake orders, pay securely with Razorpay, and download official invoices.
+              Review your cake orders, enter delivery address, pay securely with Razorpay, and download invoices.
             </p>
           </div>
           <Link
@@ -244,6 +311,7 @@ const Orders = ({ onOpenAuth }) => {
                   order.paymentInfo?.status === "Paid" ||
                   order.status === "Confirmed" ||
                   order.status === "Completed";
+                const addr = order.deliveryAddress;
 
                 return (
                   <div
@@ -329,6 +397,27 @@ const Orders = ({ onOpenAuth }) => {
                           ))}
                         </div>
 
+                        {/* Delivery Destination Badge (If added) */}
+                        {addr && addr.address && (
+                          <div className="bg-[#fffbe9] p-2.5 rounded-xl border border-[#573818]/15 text-xs text-[#573818] space-y-1">
+                            <div className="flex items-center space-x-1.5 font-bold">
+                              <i className="bx bxs-map-pin text-[#a16d0e]"></i>
+                              <span>Deliver to: {addr.fullName || user?.name} ({addr.phone})</span>
+                            </div>
+                            <p className="text-gray-600 pl-4">{addr.address}, {addr.city} - {addr.pincode}</p>
+                            {addr.deliveryDate && (
+                              <div className="text-gray-500 pl-4 text-[11px]">
+                                <i className="bx bx-calendar mr-1"></i>Date: {addr.deliveryDate} {addr.deliveryTimeSlot ? `(${addr.deliveryTimeSlot})` : ""}
+                              </div>
+                            )}
+                            {addr.customNote && (
+                              <div className="text-[#a16d0e] pl-4 italic text-[11px]">
+                                <i className="bx bxs-cake mr-1"></i>Plaque: "{addr.customNote}"
+                              </div>
+                            )}
+                          </div>
+                        )}
+
                         {/* Order Actions */}
                         <div className="flex items-center justify-between pt-2">
                           <span className="text-xs text-gray-400">
@@ -351,13 +440,13 @@ const Orders = ({ onOpenAuth }) => {
                               <button
                                 onClick={(e) => {
                                   e.stopPropagation();
-                                  handleRazorpayPayment(order);
+                                  handleOpenCheckout(order);
                                 }}
                                 disabled={isProcessingPayment}
                                 className="bg-[#573818] hover:bg-[#8d5524] text-white text-xs font-bold px-4 py-1.5 rounded-lg transition shadow-sm cursor-pointer flex items-center space-x-1"
                               >
-                                <i className="bx bx-credit-card"></i>
-                                <span>Pay Online</span>
+                                <i className="bx bx-map-pin"></i>
+                                <span>Checkout</span>
                               </button>
                             )}
                             <button
@@ -422,6 +511,24 @@ const Orders = ({ onOpenAuth }) => {
                     </div>
                   </div>
 
+                  {/* Delivery Info in Summary */}
+                  {activeOrder.deliveryAddress && activeOrder.deliveryAddress.address && (
+                    <div className="bg-[#fffbe9] p-3 rounded-xl border border-[#573818]/20 text-xs text-[#573818] space-y-1">
+                      <p className="font-bold text-[#a16d0e] flex items-center gap-1">
+                        <i className="bx bxs-truck text-sm"></i>
+                        <span>Delivery Destination</span>
+                      </p>
+                      <p className="font-semibold text-gray-800">{activeOrder.deliveryAddress.fullName || user?.name} ({activeOrder.deliveryAddress.phone})</p>
+                      <p className="text-gray-600">{activeOrder.deliveryAddress.address}, {activeOrder.deliveryAddress.city} - {activeOrder.deliveryAddress.pincode}</p>
+                      {activeOrder.deliveryAddress.deliveryDate && (
+                        <p className="text-gray-500 text-[11px]"><i className="bx bx-time mr-1"></i>Slot: {activeOrder.deliveryAddress.deliveryDate} ({activeOrder.deliveryAddress.deliveryTimeSlot || "Standard"})</p>
+                      )}
+                      {activeOrder.deliveryAddress.customNote && (
+                        <p className="text-[#a16d0e] italic text-[11px]"><i className="bx bxs-cake mr-1"></i>Plaque: "{activeOrder.deliveryAddress.customNote}"</p>
+                      )}
+                    </div>
+                  )}
+
                   {/* Actions */}
                   <div className="flex flex-col gap-2 pt-2">
                     {activeOrderIsPaid ? (
@@ -441,18 +548,12 @@ const Orders = ({ onOpenAuth }) => {
                     ) : (
                       <div className="space-y-2">
                         <button
-                          onClick={() => handleRazorpayPayment(activeOrder)}
+                          onClick={() => handleOpenCheckout(activeOrder)}
                           disabled={isProcessingPayment}
                           className="w-full bg-[#573818] hover:bg-[#8d5524] active:scale-98 text-white font-bold py-2.5 rounded-xl text-sm transition shadow-md flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-70"
                         >
-                          <i className="bx bx-credit-card text-lg"></i>
-                          <span>{isProcessingPayment ? "Opening Gateway..." : "Pay Online with Razorpay"}</span>
-                        </button>
-                        <button
-                          onClick={() => handleCODCheckout(activeOrder._id)}
-                          className="w-full bg-white hover:bg-[#fffbe9] text-[#573818] border border-[#573818]/40 font-bold py-2 rounded-xl text-xs transition cursor-pointer"
-                        >
-                          Pay Cash on Delivery (COD)
+                          <i className="bx bx-map-pin text-lg"></i>
+                          <span>Proceed to Checkout</span>
                         </button>
                       </div>
                     )}
@@ -511,14 +612,14 @@ const Orders = ({ onOpenAuth }) => {
                     <div className="flex items-center border border-gray-200 rounded-lg overflow-hidden bg-gray-50 text-xs">
                       <button
                         onClick={() => handleSuggestionQty(idx, -1)}
-                        className="px-2 py-1 hover:bg-gray-200 font-bold"
+                        className="px-2 py-1 hover:bg-gray-200 font-bold cursor-pointer"
                       >
                         -
                       </button>
                       <span className="px-2 font-bold text-[#2e1700]">{suggestionQuantities[idx]}</span>
                       <button
                         onClick={() => handleSuggestionQty(idx, 1)}
-                        className="px-2 py-1 hover:bg-gray-200 font-bold"
+                        className="px-2 py-1 hover:bg-gray-200 font-bold cursor-pointer"
                       >
                         +
                       </button>
@@ -548,6 +649,219 @@ const Orders = ({ onOpenAuth }) => {
           </Link>
         </div>
       </div>
+
+      {/* ======================================================== */}
+      {/* DELIVERY ADDRESS & CHECKOUT MODAL                        */}
+      {/* ======================================================== */}
+      {isAddressModalOpen && orderToCheckout && (
+        <div
+          onClick={() => setIsAddressModalOpen(false)}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4 overflow-y-auto"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="relative w-full max-w-lg bg-gradient-to-br from-[#fffbe9] to-[#f8e7d2] rounded-3xl shadow-2xl p-6 md:p-8 border border-[#573818]/20 my-8 animate-modal"
+          >
+            {/* Close Button */}
+            <button
+              onClick={() => setIsAddressModalOpen(false)}
+              className="absolute top-5 right-5 text-[#573818] hover:text-black text-2xl font-bold focus:outline-none cursor-pointer"
+            >
+              &times;
+            </button>
+
+            {/* Modal Title */}
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 bg-[#573818] text-white rounded-full flex items-center justify-center mx-auto mb-2 shadow">
+                <i className="bx bxs-truck text-2xl"></i>
+              </div>
+              <h3 className="text-2xl font-bold text-[#573818]">Delivery & Cake Details</h3>
+              <p className="text-xs text-[#8d5524] mt-0.5">
+                Where should we deliver your freshly baked BakeHaven treats?
+              </p>
+            </div>
+
+            {/* Form */}
+            <form onSubmit={handleAddressSubmit} className="space-y-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#573818] mb-1">
+                    Recipient Full Name <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={deliveryForm.fullName}
+                    onChange={(e) => setDeliveryForm({ ...deliveryForm, fullName: e.target.value })}
+                    placeholder="e.g. John Doe"
+                    className="w-full px-3 py-2 bg-white border border-[#e2b58d] rounded-xl text-xs md:text-sm text-[#2e1700] focus:outline-none focus:border-[#573818]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#573818] mb-1">
+                    Contact Phone Number <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="tel"
+                    required
+                    value={deliveryForm.phone}
+                    onChange={(e) => setDeliveryForm({ ...deliveryForm, phone: e.target.value })}
+                    placeholder="e.g. 9876543210"
+                    className="w-full px-3 py-2 bg-white border border-[#e2b58d] rounded-xl text-xs md:text-sm text-[#2e1700] focus:outline-none focus:border-[#573818]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-[#573818] mb-1">
+                  Street Address & House / Flat No. <span className="text-red-500">*</span>
+                </label>
+                <textarea
+                  required
+                  rows={2}
+                  value={deliveryForm.address}
+                  onChange={(e) => setDeliveryForm({ ...deliveryForm, address: e.target.value })}
+                  placeholder="e.g. Flat 302, Rosewood Heights, Near City Mall"
+                  className="w-full px-3 py-2 bg-white border border-[#e2b58d] rounded-xl text-xs md:text-sm text-[#2e1700] focus:outline-none focus:border-[#573818] resize-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-bold text-[#573818] mb-1">
+                    City <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={deliveryForm.city}
+                    onChange={(e) => setDeliveryForm({ ...deliveryForm, city: e.target.value })}
+                    placeholder="e.g. Mumbai"
+                    className="w-full px-3 py-2 bg-white border border-[#e2b58d] rounded-xl text-xs md:text-sm text-[#2e1700] focus:outline-none focus:border-[#573818]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#573818] mb-1">
+                    Pincode / Postal Code <span className="text-red-500">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={deliveryForm.pincode}
+                    onChange={(e) => setDeliveryForm({ ...deliveryForm, pincode: e.target.value })}
+                    placeholder="e.g. 400001"
+                    className="w-full px-3 py-2 bg-white border border-[#e2b58d] rounded-xl text-xs md:text-sm text-[#2e1700] focus:outline-none focus:border-[#573818]"
+                  />
+                </div>
+              </div>
+
+              {/* Delivery Schedule: Date & Slot */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1">
+                <div>
+                  <label className="block text-xs font-bold text-[#573818] mb-1">
+                    Preferred Delivery Date
+                  </label>
+                  <input
+                    type="date"
+                    min={new Date().toISOString().split("T")[0]}
+                    value={deliveryForm.deliveryDate}
+                    onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryDate: e.target.value })}
+                    className="w-full px-3 py-2 bg-white border border-[#e2b58d] rounded-xl text-xs md:text-sm text-[#2e1700] focus:outline-none focus:border-[#573818]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-xs font-bold text-[#573818] mb-1">
+                    Delivery Time Slot
+                  </label>
+                  <select
+                    value={deliveryForm.deliveryTimeSlot}
+                    onChange={(e) => setDeliveryForm({ ...deliveryForm, deliveryTimeSlot: e.target.value })}
+                    className="w-full px-3 py-2 bg-white border border-[#e2b58d] rounded-xl text-xs md:text-sm text-[#2e1700] focus:outline-none focus:border-[#573818]"
+                  >
+                    <option value="Morning (9:00 AM - 1:00 PM)">Morning (9:00 AM - 1:00 PM)</option>
+                    <option value="Afternoon (1:00 PM - 5:00 PM)">Afternoon (1:00 PM - 5:00 PM)</option>
+                    <option value="Evening (5:00 PM - 9:00 PM)">Evening (5:00 PM - 9:00 PM)</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Message on Cake Plaque */}
+              <div>
+                <label className="block text-xs font-bold text-[#573818] mb-1 flex items-center justify-between">
+                  <span>Custom Message on Cake Plaque (Optional)</span>
+                  <span className="text-[10px] text-gray-500 font-normal">e.g. Piping text</span>
+                </label>
+                <input
+                  type="text"
+                  maxLength={50}
+                  value={deliveryForm.customNote}
+                  onChange={(e) => setDeliveryForm({ ...deliveryForm, customNote: e.target.value })}
+                  placeholder='e.g. "Happy 25th Birthday Maya!"'
+                  className="w-full px-3 py-2 bg-white border border-[#e2b58d] rounded-xl text-xs md:text-sm text-[#2e1700] focus:outline-none focus:border-[#573818]"
+                />
+              </div>
+
+              {/* Payment Method Selector */}
+              <div className="pt-2 border-t border-[#573818]/15">
+                <label className="block text-xs font-bold text-[#573818] mb-2">
+                  Choose Payment Method
+                </label>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => setDeliveryForm({ ...deliveryForm, paymentMethod: "Razorpay" })}
+                    className={`p-3 rounded-2xl border text-left transition flex flex-col justify-between cursor-pointer ${
+                      deliveryForm.paymentMethod === "Razorpay"
+                        ? "border-[#573818] bg-white ring-2 ring-[#573818]/20 shadow-sm"
+                        : "border-gray-200 bg-white/60 hover:bg-white text-gray-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-[#573818]">Online Payment</span>
+                      <i className="bx bx-credit-card text-lg text-[#a16d0e]"></i>
+                    </div>
+                    <span className="text-[10px] text-gray-500 mt-1">UPI, Cards, GPay</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setDeliveryForm({ ...deliveryForm, paymentMethod: "COD" })}
+                    className={`p-3 rounded-2xl border text-left transition flex flex-col justify-between cursor-pointer ${
+                      deliveryForm.paymentMethod === "COD"
+                        ? "border-[#573818] bg-white ring-2 ring-[#573818]/20 shadow-sm"
+                        : "border-gray-200 bg-white/60 hover:bg-white text-gray-700"
+                    }`}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs font-bold text-[#573818]">Cash on Delivery</span>
+                      <i className="bx bx-money text-lg text-green-700"></i>
+                    </div>
+                    <span className="text-[10px] text-gray-500 mt-1">Pay upon arrival</span>
+                  </button>
+                </div>
+              </div>
+
+              {/* Submit Button */}
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  disabled={isProcessingPayment}
+                  className="w-full py-3 bg-[#573818] hover:bg-[#a16d0e] active:scale-98 text-white font-bold rounded-xl text-sm transition shadow-lg flex items-center justify-center space-x-2 cursor-pointer disabled:opacity-60"
+                >
+                  <i className={deliveryForm.paymentMethod === "Razorpay" ? "bx bx-credit-card text-lg" : "bx bx-check-circle text-lg"}></i>
+                  <span>
+                    {isProcessingPayment
+                      ? "Processing..."
+                      : deliveryForm.paymentMethod === "Razorpay"
+                      ? `Confirm & Pay RS ${orderToCheckout.totalAmount || orderToCheckout.items.reduce((s, it) => s + (it.price * it.quantity), 0)} with Razorpay`
+                      : `Place Order (Cash on Delivery)`}
+                  </span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

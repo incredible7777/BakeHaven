@@ -189,21 +189,31 @@ export const updateOrderItemQuantity = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, order, "Order quantity updated successfully"));
 });
 
-//purpose: complete/checkout an order
+//purpose: complete/checkout an order (COD or general finalize)
 export const checkoutOrder = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
+  const { deliveryAddress, paymentMethod } = req.body;
 
   const order = await Order.findOne({ _id: orderId, userId: req.user._id });
   if (!order) {
     throw new ApiError(404, "Order not found");
   }
 
-  order.status = "Completed";
+  if (deliveryAddress) {
+    order.deliveryAddress = {
+      ...order.deliveryAddress,
+      ...deliveryAddress,
+    };
+  }
+
+  order.status = "Confirmed";
+  order.paymentInfo.method = paymentMethod || "COD";
+  order.paymentInfo.status = paymentMethod === "Razorpay" ? "Paid" : "Pending";
   await order.save();
 
   return res
     .status(200)
-    .json(new ApiResponse(200, order, "Order completed successfully!"));
+    .json(new ApiResponse(200, order, "Order confirmed successfully!"));
 });
 
 //purpose: remove or cancel an order

@@ -29,12 +29,14 @@ export const createOrder = createAsyncThunk(
   }
 );
 
-// Checkout/Finalize an order
+// Checkout/Finalize an order (Supports deliveryAddress and paymentMethod)
 export const checkoutOrder = createAsyncThunk(
   "orders/checkoutOrder",
-  async (orderId, { rejectWithValue }) => {
+  async (payload, { rejectWithValue }) => {
     try {
-      const res = await api.put(`/orders/${orderId}/checkout`);
+      const orderId = typeof payload === "string" ? payload : payload.orderId;
+      const body = typeof payload === "object" ? payload : {};
+      const res = await api.put(`/orders/${orderId}/checkout`, body);
       return res.data.data;
     } catch (err) {
       return rejectWithValue(err.response?.data?.message || "Failed to checkout order");
