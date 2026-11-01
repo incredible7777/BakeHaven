@@ -1,4 +1,3 @@
-
 // Purpose: Express Application Setup & Route Declarations
 
 import express from "express";
@@ -31,6 +30,7 @@ import productRouter from "./routes/product.routes.js";
 import orderRouter from "./routes/order.routes.js";
 import wishlistRouter from "./routes/wishlist.routes.js";
 import contactRouter from "./routes/contact.routes.js";
+import paymentRouter from "./routes/payment.routes.js";
 
 // Mount API endpoints
 app.use("/api/auth", userRouter);
@@ -38,10 +38,12 @@ app.use("/api/products", productRouter);
 app.use("/api/orders", orderRouter);
 app.use("/api/wishlist", wishlistRouter);
 app.use("/api/contact", contactRouter);
+app.use("/api/payment", paymentRouter);
 
 // Error Handler
 // 404 Handler for undefined routes
 app.use(notFoundHandler);
 // Centralized Error Handling Middleware (Catches all ApiErrors)
 app.use(errorHandler);
+
 export { app };
