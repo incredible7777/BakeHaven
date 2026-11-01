@@ -23,7 +23,7 @@ const Contact = () => {
 
     try {
       const res = await api.post("/contact", formData);
-      setFeedback({ type: "success", text: res.data.message || "Thank you! Your message has been received by our bakery." });
+      setFeedback({ type: "success", text: res.data.message || "Thank you! Your message has been received by BakeHaven." });
       setFormData({ name: "", email: "", phone: "", message: "" });
     } catch (err) {
       setFeedback({

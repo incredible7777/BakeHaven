@@ -1,4 +1,4 @@
-// Purpose: Order Schema for Cart & Purchases
+// Purpose: Order Schema for Cart, Purchases, Payments & Invoices
 import mongoose, { Schema } from "mongoose";
 
 // Snapshot of item inside the order
@@ -41,6 +41,31 @@ const orderSchema = new Schema(
       type: String,
       enum: ["Pending", "Confirmed", "Processing", "Delivered", "Cancelled"],
       default: "Pending",
+    },
+    paymentInfo: {
+      method: {
+        type: String,
+        enum: ["Razorpay", "COD"],
+        default: "Razorpay",
+      },
+      status: {
+        type: String,
+        enum: ["Pending", "Paid", "Failed"],
+        default: "Pending",
+      },
+      razorpayOrderId: { type: String, default: "" },
+      razorpayPaymentId: { type: String, default: "" },
+      razorpaySignature: { type: String, default: "" },
+      paidAt: { type: Date },
+    },
+    deliveryAddress: {
+      fullName: { type: String, default: "" },
+      phone: { type: String, default: "" },
+      address: { type: String, default: "" },
+      city: { type: String, default: "" },
+      pincode: { type: String, default: "" },
+      deliveryDate: { type: String, default: "" },
+      customNote: { type: String, default: "" },
     },
   },
   {

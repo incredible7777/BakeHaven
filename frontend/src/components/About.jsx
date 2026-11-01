@@ -15,7 +15,7 @@ const About = () => {
         <div className="rounded-2xl overflow-hidden shadow-2xl bg-[#a16d0e] p-4 sm:p-6 flex items-center justify-center border border-black/10 self-center">
           <img
             src="/image/about.png"
-            alt="About Cake Bakery"
+            alt="About BakeHaven"
             className="w-full max-w-md h-auto object-contain hover:scale-105 transition-transform duration-500 drop-shadow-xl"
           />
         </div>
@@ -47,7 +47,7 @@ const About = () => {
                 <span>Our Baking Philosophy & Heritage</span>
               </h4>
               <p className="text-sm md:text-base leading-relaxed text-[#f3e5d8]">
-                Founded with a passionate heart and an oven full of dreams, Cake Bakery crafts every confection
+                Founded with a passionate heart and an oven full of dreams, BakeHaven crafts every confection
                 with 100% natural ingredients: stone-ground unbleached flour, organic Madagascar bourbon vanilla, and
                 single-origin Belgian chocolate. We bake daily in small batches with zero artificial preservatives.
               </p>

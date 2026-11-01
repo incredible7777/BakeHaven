@@ -64,7 +64,7 @@ const Orders = ({ onOpenAuth }) => {
   const handleBuyNow = async (orderId) => {
     try {
       await dispatch(checkoutOrder(orderId)).unwrap();
-      alert(`🎉 Thank you for your purchase! Order #${String(orderId).slice(-6).toUpperCase()} is confirmed and being prepared fresh in our bakery!`);
+      alert(`🎉 Thank you for your purchase! Order #${String(orderId).slice(-6).toUpperCase()} is confirmed and being prepared fresh at BakeHaven!`);
     } catch {
       alert(`Order #${String(orderId).slice(-6).toUpperCase()} processed successfully!`);
     }
@@ -416,7 +416,7 @@ const Orders = ({ onOpenAuth }) => {
             className="inline-flex items-center space-x-2 border-2 border-[#573818] text-[#573818] hover:bg-[#573818] hover:text-white font-bold px-6 py-2 rounded-xl transition duration-300 shadow-sm"
           >
             <i className="bx bx-left-arrow-alt text-lg"></i>
-            <span>Return to Bakery Home</span>
+            <span>Return to BakeHaven Home</span>
           </Link>
         </div>
       </div>

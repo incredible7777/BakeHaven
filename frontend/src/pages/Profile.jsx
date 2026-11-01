@@ -116,7 +116,7 @@ const Profile = ({ onOpenAuth }) => {
                 >
                   <div className="flex items-center space-x-3">
                     <i className="bx bx-cake text-xl text-[#a16d0e]"></i>
-                    <span className="font-bold text-sm text-[#573818]">Explore Bakery Catalog</span>
+                    <span className="font-bold text-sm text-[#573818]">Explore BakeHaven Menu</span>
                   </div>
                   <i className="bx bx-chevron-right text-gray-400 group-hover:text-[#573818] transition-transform group-hover:translate-x-1"></i>
                 </Link>
@@ -130,7 +130,7 @@ const Profile = ({ onOpenAuth }) => {
                 className="w-full border-2 border-red-500 text-red-600 hover:bg-red-600 hover:text-white font-bold py-2.5 rounded-xl transition duration-300 shadow-xs flex items-center justify-center space-x-2"
               >
                 <i className="bx bx-log-out text-lg"></i>
-                <span>Sign Out of Bakery Account</span>
+                <span>Sign Out of BakeHaven Account</span>
               </button>
             </div>
           </div>
@@ -143,7 +143,7 @@ const Profile = ({ onOpenAuth }) => {
             className="inline-flex items-center space-x-2 text-sm font-bold text-[#573818] hover:text-[#a16d0e] transition"
           >
             <i className="bx bx-left-arrow-alt text-lg"></i>
-            <span>Return to Bakery Home</span>
+            <span>Return to BakeHaven Home</span>
           </Link>
         </div>
       </div>

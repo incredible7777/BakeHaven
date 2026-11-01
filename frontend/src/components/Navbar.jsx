@@ -1,8 +1,6 @@
-// ========================================================
-// File: frontend/src/components/Navbar.jsx
 // Purpose: Responsive Navigation Bar with Click-Outside Dropdown Auto-Close,
 //          Route Change Auto-Close, and Mobile Responsive Menu
-// ========================================================
+
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { useSelector, useDispatch } from "react-redux";
@@ -124,12 +122,11 @@ const Navbar = ({ onOpenAuth, onSelectCategory }) => {
         >
           <img
             src="/image/logo.png"
-            alt="Cake Bakery Logo"
+            alt="BakeHaven Logo"
             className="w-10 h-10 object-contain transition-transform duration-300 group-hover:scale-105 shrink-0"
           />
-          <span className="flex items-center gap-1.5 translate-y-[2.5px] leading-none text-white tracking-normal font-bold">
-            <span>Bake</span>
-            <span>Haven</span>
+          <span className="translate-y-[1.5px] leading-none text-white tracking-normal font-bold text-2xl">
+            BakeHaven
           </span>
         </Link>
 

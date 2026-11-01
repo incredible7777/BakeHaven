@@ -51,7 +51,7 @@ const AuthModal = ({ isOpen, onClose }) => {
 
         {/* Modal Title */}
         <h2 className="text-2xl font-bold text-[#573818] text-center mb-4 tracking-wider">
-          {activeTab === "login" ? "Welcome Back!" : "Join Cake Bakery"}
+          {activeTab === "login" ? "Welcome Back to BakeHaven!" : "Join BakeHaven"}
         </h2>
 
         {/* Tab Buttons */}

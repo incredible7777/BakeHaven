@@ -64,7 +64,7 @@ const Hero = () => {
         {/* Left Content */}
         <div data-aos="zoom-out-right" className="text-white space-y-4">
           <h1 className="text-4xl md:text-6xl font-bold leading-tight drop-shadow-md">
-            Delicious <br /> Cakes Bakery
+            Delicious Cakes <br /> at BakeHaven
           </h1>
 
           {/* Synchronized Category Title */}

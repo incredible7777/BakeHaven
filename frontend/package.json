@@ -1,5 +1,5 @@
 {
-  "name": "frontend",
+  "name": "bakehaven-frontend",
   "private": true,
   "version": "0.0.0",
   "type": "module",
@@ -14,6 +14,8 @@
     "@tailwindcss/vite": "^4.3.3",
     "aos": "^2.3.4",
     "axios": "^1.21.0",
+    "jspdf": "^4.2.1",
+    "jspdf-autotable": "^5.0.9",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
     "react-redux": "^9.3.1",

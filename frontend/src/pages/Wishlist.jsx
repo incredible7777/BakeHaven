@@ -105,13 +105,13 @@ const Wishlist = ({ onOpenAuth }) => {
                 <span>Empty</span>
               </h3>
               <p className="text-sm md:text-base text-gray-600 mb-6 max-w-md mx-auto leading-relaxed">
-                You haven't saved any cakes yet. Browse our bakery collection and tap the heart icon to save your favorites!
+                You haven't saved any cakes yet. Browse our BakeHaven collection and tap the heart icon to save your favorites!
               </p>
               <Link
                 to="/#product-cards"
                 className="inline-block bg-[#573818] hover:bg-[#a16d0e] text-white font-bold px-8 py-3 rounded-xl shadow-md transition duration-300 transform hover:-translate-y-0.5 cursor-pointer"
               >
-                Browse Bakery Menu
+                Browse BakeHaven Menu
               </Link>
             </div>
           </div>
@@ -285,7 +285,7 @@ const Wishlist = ({ onOpenAuth }) => {
             className="inline-flex items-center space-x-2 border-2 border-[#573818] text-[#573818] hover:bg-[#573818] hover:text-white font-bold px-6 py-2 rounded-xl transition duration-300 shadow-sm"
           >
             <i className="bx bx-left-arrow-alt text-lg"></i>
-            <span>Return to Bakery Home</span>
+            <span>Return to BakeHaven Home</span>
           </Link>
         </div>
       </div>

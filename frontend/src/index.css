@@ -1,6 +1,6 @@
 @import "tailwindcss";
 
-/* Tailwind v4 Theme Configuration (Cake Bakery Palette) */
+/* Tailwind v4 Theme Configuration (BakeHaven Palette) */
 @theme{
   --color-cake-dark: #2e1700;        /* Background dark roast */
   --color-cake-brown: #573818;       /* Primary buttons & navbar */
