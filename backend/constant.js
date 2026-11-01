@@ -1,1 +1,1 @@
-export const DB_NAME = "CakeShop"
+export const DB_NAME = "BakeHaven"

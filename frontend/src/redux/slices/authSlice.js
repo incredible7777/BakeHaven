@@ -23,7 +23,12 @@ export const login = createAsyncThunk(
       const res = await api.post("/auth/login", credentials);
       return res.data.data.user;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Login failed");
+      const message =
+        err.response?.data?.message ||
+        (err.code === "ERR_NETWORK"
+          ? "Cannot connect to server. Please verify backend is running."
+          : "Login failed. Please check credentials.");
+      return rejectWithValue(message);
     }
   }
 );
@@ -36,7 +41,12 @@ export const register = createAsyncThunk(
       const res = await api.post("/auth/register", userData);
       return res.data.data.user;
     } catch (err) {
-      return rejectWithValue(err.response?.data?.message || "Registration failed");
+      const message =
+        err.response?.data?.message ||
+        (err.code === "ERR_NETWORK"
+          ? "Cannot connect to server. Please verify backend is running and MongoDB IP is whitelisted."
+          : "Registration failed. Please check details.");
+      return rejectWithValue(message);
     }
   }
 );
@@ -62,10 +72,16 @@ const authSlice = createSlice({
   extraReducers: (builder) => {
     builder
       // checkAuth
+      .addCase(checkAuth.pending, (state) => {
+        state.loading = true;
+      })
       .addCase(checkAuth.fulfilled, (state, action) => {
+        state.loading = false;
         state.user = action.payload;
+        state.error = null;
       })
       .addCase(checkAuth.rejected, (state) => {
+        state.loading = false;
         state.user = null;
       })
       // login
@@ -76,6 +92,7 @@ const authSlice = createSlice({
       .addCase(login.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
+        state.error = null;
       })
       .addCase(login.rejected, (state, action) => {
         state.loading = false;
@@ -89,6 +106,7 @@ const authSlice = createSlice({
       .addCase(register.fulfilled, (state, action) => {
         state.loading = false;
         state.user = action.payload;
+        state.error = null;
       })
       .addCase(register.rejected, (state, action) => {
         state.loading = false;
@@ -97,6 +115,7 @@ const authSlice = createSlice({
       // logout
       .addCase(logout.fulfilled, (state) => {
         state.user = null;
+        state.error = null;
       });
   },
 });

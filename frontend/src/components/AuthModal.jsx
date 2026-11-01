@@ -1,4 +1,4 @@
-// Purpose: Chocolaty-Themed Login & Signup Modal
+// Purpose: Chocolaty-Themed Login & Signup Modal with Show/Hide Password Toggle
 
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
@@ -6,6 +6,7 @@ import { login, register, clearError } from "../redux/slices/authSlice";
 
 const AuthModal = ({ isOpen, onClose }) => {
   const [activeTab, setActiveTab] = useState("login");
+  const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -24,10 +25,11 @@ const AuthModal = ({ isOpen, onClose }) => {
 
   const handleTabSwitch = (tab) => {
     setActiveTab(tab);
+    setShowPassword(false);
     if (error) dispatch(clearError());
   };
 
-  const handleSubmit = async(e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (activeTab === "login") {
       const res = await dispatch(login({ email: formData.email, password: formData.password }));
@@ -44,7 +46,7 @@ const AuthModal = ({ isOpen, onClose }) => {
         {/* Close Button */}
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-[#573818] hover:text-black text-2xl font-bold focus:outline-none"
+          className="absolute top-4 right-4 text-[#573818] hover:text-black text-2xl font-bold focus:outline-none cursor-pointer"
         >
           &times;
         </button>
@@ -58,7 +60,7 @@ const AuthModal = ({ isOpen, onClose }) => {
         <div className="flex border-b border-[#b88953]/30 mb-5">
           <button
             onClick={() => handleTabSwitch("login")}
-            className={`flex-1 py-2 font-bold text-center transition duration-200 ${
+            className={`flex-1 py-2 font-bold text-center transition duration-200 cursor-pointer ${
               activeTab === "login"
                 ? "bg-gradient-to-r from-[#b88953] to-[#dfcb46] text-[#2e1700] rounded-t-lg shadow"
                 : "text-[#573818] hover:bg-[#e2b58d]"
@@ -68,7 +70,7 @@ const AuthModal = ({ isOpen, onClose }) => {
           </button>
           <button
             onClick={() => handleTabSwitch("signup")}
-            className={`flex-1 py-2 font-bold text-center transition duration-200 ${
+            className={`flex-1 py-2 font-bold text-center transition duration-200 cursor-pointer ${
               activeTab === "signup"
                 ? "bg-gradient-to-r from-[#b88953] to-[#dfcb46] text-[#2e1700] rounded-t-lg shadow"
                 : "text-[#573818] hover:bg-[#e2b58d]"
@@ -80,7 +82,7 @@ const AuthModal = ({ isOpen, onClose }) => {
 
         {/* Error Alert */}
         {error && (
-          <div className="mb-4 p-2 bg-red-100 border border-red-400 text-red-700 text-sm rounded text-center">
+          <div className="mb-4 p-2.5 bg-red-100 border border-red-400 text-red-700 text-sm rounded-lg text-center font-medium leading-relaxed">
             {error}
           </div>
         )}
@@ -117,21 +119,33 @@ const AuthModal = ({ isOpen, onClose }) => {
 
           <div>
             <label className="block text-sm font-semibold text-[#573818] mb-1">Password</label>
-            <input
-              type="password"
-              name="password"
-              value={formData.password}
-              onChange={handleChange}
-              placeholder="Enter your password"
-              required
-              className="w-full px-3 py-2 bg-[#f8e7d2] border border-[#e2b58d] rounded-lg text-[#573818] focus:outline-none focus:border-[#b88953] font-medium"
-            />
+            <div className="relative">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                value={formData.password}
+                onChange={handleChange}
+                placeholder={activeTab === "login" ? "Enter your password" : "Create password (min 6 chars)"}
+                required
+                minLength={6}
+                className="w-full px-3 py-2 pr-10 bg-[#f8e7d2] border border-[#e2b58d] rounded-lg text-[#573818] focus:outline-none focus:border-[#b88953] font-medium"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword((prev) => !prev)}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#573818] hover:text-[#2e1700] p-1 text-xl flex items-center justify-center focus:outline-none cursor-pointer"
+                title={showPassword ? "Hide password" : "Show password"}
+                tabIndex={-1}
+              >
+                <i className={`bx ${showPassword ? "bx-hide" : "bx-show"}`}></i>
+              </button>
+            </div>
           </div>
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-gradient-to-r from-[#573818] to-[#b88953] hover:from-[#b88953] hover:to-[#573818] text-white font-bold rounded-lg shadow-md transition duration-300 disabled:opacity-50"
+            className="w-full py-2.5 bg-gradient-to-r from-[#573818] to-[#b88953] hover:from-[#b88953] hover:to-[#573818] text-white font-bold rounded-lg shadow-md transition duration-300 disabled:opacity-50 cursor-pointer"
           >
             {loading ? "Processing..." : activeTab === "login" ? "Login" : "Create Account"}
           </button>
@@ -145,7 +159,7 @@ const AuthModal = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={() => handleTabSwitch("signup")}
-                className="text-[#b88953] hover:text-[#573818] font-bold underline ml-1"
+                className="text-[#b88953] hover:text-[#573818] font-bold underline ml-1 cursor-pointer"
               >
                 Sign up
               </button>
@@ -156,7 +170,7 @@ const AuthModal = ({ isOpen, onClose }) => {
               <button
                 type="button"
                 onClick={() => handleTabSwitch("login")}
-                className="text-[#b88953] hover:text-[#573818] font-bold underline ml-1"
+                className="text-[#b88953] hover:text-[#573818] font-bold underline ml-1 cursor-pointer"
               >
                 Login
               </button>
