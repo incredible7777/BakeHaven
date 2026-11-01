@@ -2,14 +2,14 @@
 import { Product } from "../models/product.model.js";
 import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
-import { asyncHandler } from "../utils/AsyncHandler.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 
 //purpose: get all cakes or filter by category using query param
 export const getAllProducts = asyncHandler(async (req, res) => {
   const { category } = req.query;
 
   // Filter by category if supplied; otherwise fetch all
-  const filter = category?{ category } : {};
+  const filter = category ? { category } : {};
   const products = await Product.find(filter).sort({ createdAt: -1 });
 
   return res
