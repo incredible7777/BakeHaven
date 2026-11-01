@@ -46,29 +46,36 @@ export const getWishlist = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, user.wishlist, "Wishlist retrieved successfully"));
 });
 
-
-//purpose : update wishlist quantity using body
+//purpose : update wishlist quantity (removes item if quantity <= 0)
 export const updateWishlistQuantity = asyncHandler(async (req, res) => {
   const { itemName, quantity } = req.body;
 
-  if (!itemName || quantity === undefined || quantity < 1) {
-    throw new ApiError(400, "Valid itemName and quantity (>= 1) are required");
+  if (!itemName || quantity === undefined) {
+    throw new ApiError(400, "Valid itemName and quantity are required");
   }
 
   const user = await User.findById(req.user._id);
-  const item = user.wishlist.find((i) => i.name === itemName);
 
-  if (!item) {
-    throw new ApiError(404, "Item not found in wishlist");
+  if (quantity <= 0) {
+    user.wishlist = user.wishlist.filter(
+      (i) => i.name.toLowerCase() !== itemName.toLowerCase()
+    );
+  } else {
+    const item = user.wishlist.find(
+      (i) => i.name.toLowerCase() === itemName.toLowerCase()
+    );
+    if (!item) {
+      throw new ApiError(404, "Item not found in wishlist");
+    }
+    item.quantity = quantity;
   }
 
-  item.quantity = quantity;
   await user.save();
 
   return res
     .status(200)
     .json(
-      new ApiResponse(200, user.wishlist, "Wishlist item quantity updated")
+      new ApiResponse(200, user.wishlist, "Wishlist updated successfully")
     );
 });
 

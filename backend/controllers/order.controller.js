@@ -133,13 +133,13 @@ export const getUserOrders = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, orders, "Orders retrieved successfully"));
 });
 
-//purpose: update quantity of a specific cake inside an order
+//purpose: update quantity of a specific cake inside an order (removes item if quantity <= 0)
 export const updateOrderItemQuantity = asyncHandler(async (req, res) => {
   const { orderId } = req.params;
   const { itemName, quantity } = req.body;
 
-  if (!itemName || quantity === undefined || quantity < 1) {
-    throw new ApiError(400, "Valid itemName and quantity (>= 1) are required");
+  if (!itemName || quantity === undefined) {
+    throw new ApiError(400, "Valid itemName and quantity are required");
   }
 
   const order = await Order.findOne({ _id: orderId, userId: req.user._id });
@@ -147,13 +147,34 @@ export const updateOrderItemQuantity = asyncHandler(async (req, res) => {
     throw new ApiError(404, "Order not found");
   }
 
-  const item = order.items.find((i) => i.name === itemName);
-  if (!item) {
-    throw new ApiError(404, "Item not found in order");
-  }
+  // If quantity <= 0, remove the item from the order
+  if (quantity <= 0) {
+    order.items = order.items.filter(
+      (i) => i.name.toLowerCase() !== itemName.toLowerCase()
+    );
 
-  // Update item quantity
-  item.quantity = quantity;
+    // If order has no more items left, delete the order entirely!
+    if (order.items.length === 0) {
+      await Order.findByIdAndDelete(order._id);
+      return res
+        .status(200)
+        .json(
+          new ApiResponse(
+            200,
+            { _id: orderId, removedOrder: true },
+            "Item removed, and empty order canceled successfully"
+          )
+        );
+    }
+  } else {
+    const item = order.items.find(
+      (i) => i.name.toLowerCase() === itemName.toLowerCase()
+    );
+    if (!item) {
+      throw new ApiError(404, "Item not found in order");
+    }
+    item.quantity = quantity;
+  }
 
   // Recalculate total amount
   order.totalAmount = order.items.reduce(

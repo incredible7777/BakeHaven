@@ -30,7 +30,14 @@ const Wishlist = ({ onOpenAuth }) => {
 
   const handleQtyChange = (itemName, currentQty, delta) => {
     const newQty = currentQty + delta;
-    if (newQty < 1) return;
+    if (newQty <= 0) {
+      // Decrementing to 0 immediately removes this item from the wishlist
+      dispatch(removeFromWishlist(itemName));
+      if (selectedItemName === itemName) {
+        setSelectedItemName(null);
+      }
+      return;
+    }
     dispatch(updateWishlistQty({ itemName, quantity: newQty }));
   };
 
@@ -153,9 +160,14 @@ const Wishlist = ({ onOpenAuth }) => {
                                   e.stopPropagation();
                                   handleQtyChange(item.name, item.quantity || 1, -1);
                                 }}
-                                className="w-5 h-5 rounded bg-white hover:bg-[#573818] hover:text-white font-bold flex items-center justify-center text-xs transition shadow-xs cursor-pointer"
+                                className={`w-5 h-5 rounded font-bold flex items-center justify-center text-xs transition shadow-xs cursor-pointer ${
+                                  (item.quantity || 1) === 1
+                                    ? "bg-red-50 text-red-600 hover:bg-red-600 hover:text-white"
+                                    : "bg-white hover:bg-[#573818] hover:text-white"
+                                }`}
+                                title={(item.quantity || 1) === 1 ? "Remove item" : "Decrease quantity"}
                               >
-                                -
+                                {(item.quantity || 1) === 1 ? <i className="bx bx-trash text-[10px]"></i> : "-"}
                               </button>
                               <span className="font-bold text-xs text-[#2e1700] px-1">{item.quantity || 1}</span>
                               <button

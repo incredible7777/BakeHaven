@@ -1,6 +1,6 @@
 // ========================================================
 // File: frontend/src/pages/Orders.jsx
-// Purpose: Orders Page with Item Count Merging, Checkout & Reactive Summary
+// Purpose: Orders Page with Item Count Merging, Zero-Quantity Item Removal & Checkout
 // ========================================================
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
@@ -26,7 +26,7 @@ const Orders = ({ onOpenAuth }) => {
   const suggestions = [
     { name: "Cream Cake", description: "Delicious layered sponge with fresh dairy cream.", price: 1200, image: "/image/c1.png" },
     { name: "Choco Cake", description: "Rich Belgian chocolate sponge with dark fudge ganache.", price: 1600, image: "/image/c2.png" },
-    { name: "Slice Cake", description: "Moist sponge slice layered with delicate vanilla frosting.", price: 900, image: "/image/c3.png" },
+    { name: "Vanilla Slice Cake", description: "Moist sponge slice layered with delicate vanilla frosting.", price: 1000, image: "/image/c3.png" },
     { name: "Fruit Cake", description: "Handcrafted fruit gateau topped with seasonal berries.", price: 1400, image: "/image/c4.png" },
   ];
 
@@ -44,7 +44,11 @@ const Orders = ({ onOpenAuth }) => {
 
   const handleQtyChange = (orderId, itemName, currentQty, delta) => {
     const newQty = currentQty + delta;
-    if (newQty < 1) return;
+    if (newQty <= 0) {
+      // Decrementing to 0 immediately removes this item from the order
+      dispatch(updateOrderQty({ orderId, itemName, quantity: 0 }));
+      return;
+    }
     dispatch(updateOrderQty({ orderId, itemName, quantity: newQty }));
   };
 
@@ -207,10 +211,14 @@ const Orders = ({ onOpenAuth }) => {
                                       e.stopPropagation();
                                       handleQtyChange(order._id, item.name, item.quantity, -1);
                                     }}
-                                    className="w-6 h-6 rounded-full bg-gray-100 hover:bg-[#573818] hover:text-white font-bold flex items-center justify-center text-xs transition"
-                                    title="Decrease quantity"
+                                    className={`w-6 h-6 rounded-full font-bold flex items-center justify-center text-xs transition cursor-pointer ${
+                                      item.quantity === 1
+                                        ? "bg-red-50 text-red-600 hover:bg-red-600 hover:text-white"
+                                        : "bg-gray-100 hover:bg-[#573818] hover:text-white"
+                                    }`}
+                                    title={item.quantity === 1 ? "Remove item" : "Decrease quantity"}
                                   >
-                                    -
+                                    {item.quantity === 1 ? <i className="bx bx-trash text-[11px]"></i> : "-"}
                                   </button>
                                 )}
                                 <span className="font-bold text-xs text-[#2e1700] w-6 text-center">x{item.quantity}</span>
@@ -220,7 +228,7 @@ const Orders = ({ onOpenAuth }) => {
                                       e.stopPropagation();
                                       handleQtyChange(order._id, item.name, item.quantity, 1);
                                     }}
-                                    className="w-6 h-6 rounded-full bg-gray-100 hover:bg-[#573818] hover:text-white font-bold flex items-center justify-center text-xs transition"
+                                    className="w-6 h-6 rounded-full bg-gray-100 hover:bg-[#573818] hover:text-white font-bold flex items-center justify-center text-xs transition cursor-pointer"
                                     title="Increase quantity"
                                   >
                                     +

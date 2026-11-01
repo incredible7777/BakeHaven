@@ -1,4 +1,4 @@
-// Purpose: Orders & Cart Redux Slice with Item Count Incrementing & Checkout
+// Purpose: Orders & Cart Redux Slice with Item Count Incrementing, Removal on Zero & Checkout
 
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import api from "../../services/api";
@@ -42,7 +42,7 @@ export const checkoutOrder = createAsyncThunk(
   }
 );
 
-// Update quantity of an item in order
+// Update quantity of an item in order (removes item if quantity is 0)
 export const updateOrderQty = createAsyncThunk(
   "orders/updateOrderQty",
   async ({ orderId, itemName, quantity }, { rejectWithValue }) => {
@@ -106,11 +106,15 @@ const orderSlice = createSlice({
           state.items[index] = action.payload;
         }
       })
-      // updateOrderQty
+      // updateOrderQty (handles removed order when all items decremented to 0)
       .addCase(updateOrderQty.fulfilled, (state, action) => {
-        const index = state.items.findIndex((o) => o._id === action.payload._id);
-        if (index !== -1) {
-          state.items[index] = action.payload;
+        if (action.payload && action.payload.removedOrder) {
+          state.items = state.items.filter((o) => o._id !== action.payload._id);
+        } else if (action.payload) {
+          const index = state.items.findIndex((o) => o._id === action.payload._id);
+          if (index !== -1) {
+            state.items[index] = action.payload;
+          }
         }
       })
       // removeOrder
