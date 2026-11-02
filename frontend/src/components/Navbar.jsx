@@ -26,6 +26,12 @@ const Navbar = ({ onOpenAuth, onSelectCategory }) => {
   const { items: wishlistItems } = useSelector((state) => state.wishlist);
   const { items: orderItems } = useSelector((state) => state.orders);
 
+  // Compute live active cart items count (un-ordered/pending bag items only)
+  const activeCart = (orderItems || []).find((o) => o.status === "Pending");
+  const cartCount = activeCart && activeCart.items
+    ? activeCart.items.reduce((sum, item) => sum + (item.quantity || 1), 0)
+    : 0;
+
   // Automatically close all open dropdowns whenever the user navigates / changes route
   useEffect(() => {
     setDropdownOpen(false);
@@ -234,6 +240,18 @@ const Navbar = ({ onOpenAuth, onSelectCategory }) => {
                   My Account
                 </Link>
                 <Link
+                  to="/cart"
+                  onClick={() => setUserMenuOpen(false)}
+                  className="flex items-center justify-between px-4 py-2 hover:bg-[#fffbe9] text-sm text-[#573818]"
+                >
+                  <span>My Cart</span>
+                  {cartCount > 0 && (
+                    <span className="bg-[#a16d0e] text-white text-[10px] font-bold px-1.5 py-0.2 rounded-full">
+                      {cartCount}
+                    </span>
+                  )}
+                </Link>
+                <Link
                   to="/orders"
                   onClick={() => setUserMenuOpen(false)}
                   className="block px-4 py-2 hover:bg-[#fffbe9] text-sm text-[#573818]"
@@ -276,9 +294,9 @@ const Navbar = ({ onOpenAuth, onSelectCategory }) => {
             )}
           </Link>
 
-          {/* Cart / Orders Icon with Count Badge */}
+          {/* Cart Icon with Live Count Badge (Un-checked-out items only) */}
           <Link
-            to={user ? "/orders" : "#"}
+            to={user ? "/cart" : "#"}
             onClick={!user ? onOpenAuth : undefined}
             className="relative"
           >
@@ -286,11 +304,11 @@ const Navbar = ({ onOpenAuth, onSelectCategory }) => {
               src="/image/add.png"
               alt="Cart"
               className="w-6 h-6 cursor-pointer hover:-translate-y-1 transition duration-300"
-              title="My Orders / Cart"
+              title="My Shopping Cart"
             />
-            {orderItems && orderItems.length > 0 && (
+            {cartCount > 0 && (
               <span className="absolute -top-2 -right-3 bg-[#a16d0e] text-white text-[10px] font-bold rounded-full h-4 w-4 flex items-center justify-center shadow">
-                {orderItems.length}
+                {cartCount}
               </span>
             )}
           </Link>
@@ -347,6 +365,57 @@ const Navbar = ({ onOpenAuth, onSelectCategory }) => {
           <a href="/#contact" onClick={() => setMobileMenuOpen(false)} className="px-2 py-1 hover:bg-[#a16d0e] rounded">
             Contact
           </a>
+
+          {/* User Shortcuts in Mobile Menu */}
+          <div className="pt-2 border-t border-white/10 space-y-1">
+            <Link
+              to={user ? "/cart" : "#"}
+              onClick={() => {
+                setMobileMenuOpen(false);
+                if (!user) onOpenAuth();
+              }}
+              className="px-2 py-1 hover:bg-[#a16d0e] rounded flex items-center justify-between"
+            >
+              <span className="flex items-center space-x-2">
+                <i className="bx bx-shopping-bag"></i>
+                <span>My Cart</span>
+              </span>
+              {cartCount > 0 && (
+                <span className="bg-[#a16d0e] text-white text-xs px-2 py-0.5 rounded-full">
+                  {cartCount}
+                </span>
+              )}
+            </Link>
+            <Link
+              to={user ? "/orders" : "#"}
+              onClick={() => {
+                setMobileMenuOpen(false);
+                if (!user) onOpenAuth();
+              }}
+              className="px-2 py-1 hover:bg-[#a16d0e] rounded flex items-center space-x-2"
+            >
+              <i className="bx bx-package"></i>
+              <span>My Orders</span>
+            </Link>
+            <Link
+              to={user ? "/wishlist" : "#"}
+              onClick={() => {
+                setMobileMenuOpen(false);
+                if (!user) onOpenAuth();
+              }}
+              className="px-2 py-1 hover:bg-[#a16d0e] rounded flex items-center justify-between"
+            >
+              <span className="flex items-center space-x-2">
+                <i className="bx bx-heart"></i>
+                <span>My Wishlist</span>
+              </span>
+              {wishlistItems && wishlistItems.length > 0 && (
+                <span className="bg-red-600 text-white text-xs px-2 py-0.5 rounded-full">
+                  {wishlistItems.length}
+                </span>
+              )}
+            </Link>
+          </div>
         </div>
       )}
     </nav>

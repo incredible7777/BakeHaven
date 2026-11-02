@@ -70,6 +70,7 @@ function App() {
               />
             }
           />
+          <Route path="/cart" element={<Cart onOpenAuth={() => setAuthModalOpen(true)} />} />
           <Route path="/orders" element={<Orders onOpenAuth={() => setAuthModalOpen(true)} />} />
           <Route path="/wishlist" element={<Wishlist onOpenAuth={() => setAuthModalOpen(true)} />} />
           <Route path="/profile" element={<Profile onOpenAuth={() => setAuthModalOpen(true)} />} />
