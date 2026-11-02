@@ -5,27 +5,27 @@ import React, { useState, useEffect } from "react";
 
 const cakeCategories = [
   {
-    title: "Birthday cake",
+    title: "Birthday Cake",
     image: "/image/c9.png",
     desc: "Celebrate unforgettable moments with our signature handcrafted birthday cakes, frosted with velvety cream.",
   },
   {
-    title: "Chocolate cake",
+    title: "Chocolate Cake",
     image: "/image/background.png",
     desc: "Gently place the parchment on your cake. Using a toothpick, prick the message onto the rich chocolate frosting.",
   },
   {
-    title: "Party cake",
+    title: "Party Cake",
     image: "/image/c1.png",
     desc: "Make every celebration grand with our soft-layered cream cakes designed to be the life of the party.",
   },
   {
-    title: "Slice cake",
+    title: "Slice Cake",
     image: "/image/c3.png",
     desc: "Indulge in perfectly sliced portions of moist sponge cake paired with delectable creamy layers.",
   },
   {
-    title: "Cup cake",
+    title: "Cup Cake",
     image: "/image/c10.png",
     desc: "Delight in artisan cupcakes topped with swirls of delicious frosting and festive handcrafted sprinkles.",
   },
@@ -67,15 +67,19 @@ const Hero = () => {
             Delicious Cakes <br /> at BakeHaven
           </h1>
 
-          {/* Synchronized Category Title */}
-          <h2 className="text-3xl md:text-5xl font-bold text-white drop-shadow-md flex items-center flex-wrap gap-2">
-            <span>Category</span>
+          {/* Synchronized Category Title with Proportional Spacing */}
+          <h2 className="text-3xl sm:text-4xl md:text-5xl font-bold drop-shadow-md flex items-center flex-wrap gap-x-4 md:gap-x-5 gap-y-1">
+            <span className="text-white shrink-0">Category</span>
             <span
-              className={`text-[#a16d0e] transition-all duration-300 transform inline-block ${
+              className={`transition-all duration-300 transform inline-flex items-center gap-x-2.5 md:gap-x-3 drop-shadow-md ${
                 fade ? "opacity-0 -translate-y-2" : "opacity-100 translate-y-0"
               }`}
             >
-              {currentCake.title}
+              {currentCake.title.split(" ").map((word, wIdx) => (
+                <span key={wIdx} className="text-[#e2b58d] shrink-0">
+                  {word}
+                </span>
+              ))}
             </span>
           </h2>
 
