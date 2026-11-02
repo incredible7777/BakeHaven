@@ -16,6 +16,7 @@ import QuickViewModal from "./components/QuickViewModal";
 import ScrollToTop from "./components/ScrollToTop";
 
 import Home from "./pages/Home";
+import Cart from "./pages/Cart";
 import Orders from "./pages/Orders";
 import Wishlist from "./pages/Wishlist";
 import Profile from "./pages/Profile";
