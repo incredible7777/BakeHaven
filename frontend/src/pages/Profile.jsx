@@ -159,10 +159,6 @@ const Profile = ({ onOpenAuth }) => {
                 </Link>
               </div>
             </div>
-                  <i className="bx bx-chevron-right text-gray-400 group-hover:text-[#573818] transition-transform group-hover:translate-x-1"></i>
-                </Link>
-              </div>
-            </div>
 
             {/* Logout Button */}
             <div className="pt-2">
