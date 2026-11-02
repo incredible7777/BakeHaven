@@ -1,8 +1,7 @@
-// ========================================================
-// File: frontend/src/pages/Cart.jsx
+
 // Purpose: Dedicated Shopping Cart / Bag Page with Real-time
 //          Quantity Controls, Order Summary & Checkout Modal
-// ========================================================
+
 import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
@@ -269,10 +268,10 @@ const Cart = ({ onOpenAuth }) => {
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-[#573818] tracking-wide flex items-center gap-2">
               <i className="bx bx-shopping-bag text-3xl text-[#a16d0e]"></i>
-              <span>My Shopping Cart</span>
+              <span>My Cart</span>
             </h1>
             <p className="text-sm md:text-base text-[#8d5524] mt-1 font-medium font-sans">
-              Review your selected treats, adjust quantities, and proceed to checkout.
+              Review your selected treats.
             </p>
           </div>
           <div className="flex items-center space-x-4">
@@ -403,7 +402,7 @@ const Cart = ({ onOpenAuth }) => {
                 </div>
               ))}
 
-              {/* Delivery Assurance Strip */}
+              {/* Delivery Assurance Strip
               <div className="bg-[#fffbe9] border border-[#573818]/15 rounded-2xl p-4 flex items-center space-x-3 text-xs text-[#573818] font-sans">
                 <i className="bx bxs-shield-check text-2xl text-emerald-600 shrink-0"></i>
                 <div>
@@ -412,7 +411,7 @@ const Cart = ({ onOpenAuth }) => {
                     Our cakes are transported in refrigerated vehicles to arrive in picture-perfect condition.
                   </p>
                 </div>
-              </div>
+              </div> */}
 
               {/* Suggestions / Add-ons */}
               <div className="mt-8 pt-6 border-t border-[#573818]/15">
@@ -532,18 +531,16 @@ const Cart = ({ onOpenAuth }) => {
                 <i className="bx bx-right-arrow-alt text-lg"></i>
               </button>
 
-              <p className="text-[11px] text-stone-400 text-center mt-3 flex items-center justify-center space-x-1">
+              {/* <p className="text-[11px] text-stone-400 text-center mt-3 flex items-center justify-center space-x-1">
                 <i className="bx bx-shield-quarter text-sm text-emerald-600"></i>
-                <span>Guaranteed 256-Bit Encrypted Secure Checkout</span>
-              </p>
+              </p> */}
             </div>
           </div>
         )}
       </div>
 
-      {/* ======================================================== */}
       {/* REALISTIC DELIVERY ADDRESS & CHECKOUT MODAL              */}
-      {/* ======================================================== */}
+      
       {isAddressModalOpen && activeCart && (
         <div
           onClick={() => setIsAddressModalOpen(false)}

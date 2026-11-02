@@ -51,10 +51,10 @@ const Orders = ({ onOpenAuth }) => {
           <div>
             <h1 className="text-3xl md:text-4xl font-bold text-[#573818] tracking-wide flex items-center gap-2">
               <i className="bx bx-package text-3xl text-[#a16d0e]"></i>
-              <span>My Orders & Delivery History</span>
+              <span>My Orders</span>
             </h1>
             <p className="text-sm md:text-base text-[#8d5524] mt-1 font-medium font-sans">
-              Track your confirmed artisan cake orders and download official GST tax invoices.
+              Track your confirmed artisan cake orders.
             </p>
           </div>
           <div className="flex items-center space-x-4">
